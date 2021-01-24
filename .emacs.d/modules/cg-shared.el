@@ -2,9 +2,6 @@
 
 ;; save minibuffer history
 (savehist-mode 1)
-
-(require 'package)
-(add-to-list 'package-archives '("melpa" . "http://melpa.org/packages/"))
 (require 'dash)
 (require 'treemacs)
 
@@ -19,53 +16,9 @@
 
 (column-number-mode 1)
 
-
-(autoload 'windmove-find-other-window "windmove"
-  "Return the window object in direction DIR.
-
-\(fn dir &optional arg window)")
-
-(declare-function windmove-find-other-window "windmove" (dir &optional arg window))
-
-(defun get-window-in-frame (x y &optional frame)
-  "Find Xth horizontal and Yth vertical window from top-left of FRAME."
-  (let ((orig-x x) (orig-y y)
-        (w (frame-first-window frame)))
-    (while (and (windowp w) (> x 0))
-      (setq w (windmove-find-other-window 'right 1 w)
-            x (1- x)))
-    (while (and (windowp w) (> y 0))
-      (setq w (windmove-find-other-window 'down 1 w)
-            y (1- y)))
-    (unless (windowp w)
-      (error "No window at (%d, %d)" orig-x orig-y))
-    w))
-
-(defun set-window-buffer-in-frame (x y buffer &optional frame)
-  "Set Xth horizontal and Yth vertical window to BUFFER from top-left of FRAME."
-  (set-window-buffer (get-window-in-frame x y frame) buffer))
-
-(defun split-window-multiple-ways (x y)
-  "Split the current frame into a grid of X columns and Y rows."
-  (interactive "nColumns: \nnRows: ")
-  ;; one window
-  (delete-other-windows)
-  (dotimes (i (1- x))
-    (split-window-horizontally)
-    (dotimes (j (1- y))
-      (split-window-vertically))
-    (other-window y))
-  (dotimes (j (1- y))
-    (split-window-vertically))
-  (balance-windows))
-
-;;(require 'auto-dim-other-buffers)
-
-
 (autoload 'c++-mode "cc-mode" "C++ Editing Mode" t)
 (autoload 'c-mode   "cc-mode" "C Editing Mode" t)
 
-(tool-bar-mode 0)
 (setq compile-command "msbuild d:\\dev\\code\\code.sln -maxcpucount:10 /p:Configuration=RelWithDebInfo 2>&1 | perl d:\\dev\\code\\tools\\msbuild_filter.pl" )
 (setq compilation-scroll-output 'first-error )
 (setq compilation-mode-hook '(lambda ()
@@ -101,22 +54,6 @@
 (autoload 'gtags-mode "gtags" "" t)
 (global-set-key "\e#" 'calc-dispatch)
 
-(defun restore-or-default-window-layout ()
-  (interactive)
-  (if (boundp 'saved-window-layout )
-      (set-window-configuration saved-window-layout )
-    (set-default-window-layout ) ) )
-
-(defun save-default-window-layout ()
-  (interactive)
-  (setq saved-window-layout (current-window-configuration ) )
-  )
-
-(global-set-key [f1] 'restore-or-default-window-layout)
-(global-set-key [S-f1] 'save-default-window-layout )
-
-
-
 (defun compile_it ()
   (interactive)
   (save-some-buffers 1 )
@@ -129,8 +66,7 @@
   "select shell and move to bottom"
   (interactive)
   (shell)
-  (end-of-buffer)
-  )
+  (end-of-buffer))
 
 
 (global-set-key [f10] 'start-or-switch-to-shell)

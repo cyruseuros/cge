@@ -38,3 +38,6 @@
 
 ;; Ensure Emacs is running out of this file's directory
 (setq user-emacs-directory (file-name-directory load-file-name))
+
+;; Disable various UI elements
+(tool-bar-mode 0)

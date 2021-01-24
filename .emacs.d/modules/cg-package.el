@@ -23,5 +23,14 @@
 ;; Nice and tidy way to configure our packages
 (straight-use-package 'use-package)
 
+(defun cg-package-require (packages)
+  (dolist (pkg packages)
+    (require pkg)))
+
+(defun cg-package-autoload (pkg &rest funcs)
+  "Autlod multiple function."
+  (dolist (func funcs)
+    (autoload func (symbol-name pkg))))
+
 (provide 'cg-package)
 ;;; cg-package.el ends here
