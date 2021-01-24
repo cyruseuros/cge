@@ -1,3 +1,4 @@
+# Defaults
 .DS_Store
 .idea
 *.log
@@ -6,3 +7,7 @@ tmp/
 # Hack while using $HOME to test
 .cache/
 .config/
+
+# Emacs Directories
+straight/
+var/

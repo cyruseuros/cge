@@ -1,42 +1,16 @@
-;; run the shared one
+;; Load early-init.el on older Emacs versions such as the one on Ubuntu 20.4
+(when (version< emacs-version "27.1")
+  (load (concat (file-name-directory load-file-name) "early-init")
+        nil t))
 
-;; Added by Package.el.  This must come before configurations of
-;; installed packages.  Don't delete this line.  If you don't want it,
-;; just comment it out by adding a semicolon to the start of the line.
-;; You may delete these explanatory comments.
-;;(package-initialize)
+;; This is where we store all our config "packages"
+(add-to-list 'load-path (concat user-emacs-directory "config"))
+(require 'cg-package)
+(require 'cg-layout)
+(require 'cg-housekeeping)
 
-(setq package-user-dir "d:/googledrive/emacs/share/emacs/site-lisp/elpa")
-(require 'package)
-(package-initialize)
-
-(set-frame-height nil 105)
-(set-frame-width nil 538)
-(set-frame-position (selected-frame) 5 6)
-
-
-;; *cg* position initial window */
-(defun set-default-window-layout ()
-  "set window pos and splits to default"
-  (interactive)
-  (delete-other-windows)
-  (setq _curbuf ( current-buffer ) )
-  (delete-other-windows)
-  (setq _tmp ( frame-first-window ) )
-  (setq _hsplit1 (split-window-horizontally) )
-  (setq _hsplit2 (split-window-horizontally) )
-  (balance-windows)
-  (setq _split1 (split-window-below 66) )
-  (setq _split2 (split-window-vertically) )
-  (select-window _hsplit2 )
-
-  )
-
-(add-to-list 'load-path "d:/dev/code/emacs/" )
-
-(load "d:/dev/code/emacs/.emacs_shared" )
-(set-default-window-layout)
-
+;; This is where we store all our API "packages"
+(add-to-list 'load-path (concat user-emacs-directory "modules"))
 
 (custom-set-variables
  ;; custom-set-variables was added by Custom.
