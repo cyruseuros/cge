@@ -1,0 +1,106 @@
+;; run the shared one
+
+;; Added by Package.el.  This must come before configurations of
+;; installed packages.  Don't delete this line.  If you don't want it,
+;; just comment it out by adding a semicolon to the start of the line.
+;; You may delete these explanatory comments.
+;;(package-initialize)
+
+(setq package-user-dir "d:/googledrive/emacs/share/emacs/site-lisp/elpa")
+
+(add-to-list 'load-path "d:/dev/code/emacs/" )
+
+(load "d:/dev/code/emacs/.emacs_shared" )
+
+(custom-set-variables
+ ;; custom-set-variables was added by Custom.
+ ;; If you edit it by hand, you could mess it up, so be careful.
+ ;; Your init file should contain only one such instance.
+ ;; If there is more than one, they won't work right.
+ '(ansi-color-faces-vector
+   [default default default italic underline success warning error])
+ '(ansi-color-names-vector
+   ["black" "#d55e00" "#009e73" "#f8ec59" "#0072b2" "#cc79a7" "#56b4e9" "white"])
+ '(auto-image-file-mode t nil (image-file))
+ '(backup-directory-alist '(("." . "c:/emacs-backup/")))
+ '(c++-font-lock-extra-types
+   '("\\sw+_t" "\\([iof]\\|str\\)+stream\\(buf\\)?" "ios" "string" "rope" "list" "slist" "deque" "vector" "bit_vector" "set" "multiset" "map" "multimap" "hash\\(_\\(m\\(ap\\|ulti\\(map\\|set\\)\\)\\|set\\)\\)?" "stack" "queue" "priority_queue" "type_info" "iterator" "const_iterator" "reverse_iterator" "const_reverse_iterator" "reference" "const_reference" "ULONG" "int32" "UBYTE" "WORD" "UWORD" "vec3" "vec4" "mat3" "uint\\d+" "int\\d+" "ConVar" "ITexture" "IMaterial" "Vector" "float[234]" "fltx4" "float[234]x[234]"))
+ '(c-noise-macro-names '("constexpr"))
+ '(column-number-mode t)
+ '(compilation-scroll-output 'first-error)
+ '(cppcm-build-dirname "d:/dev/code")
+ '(explicit-shell-file-name "C:\\Program Files\\JPSoft\\TCCLE14x64\\tcc.exe")
+ '(fringe-mode 0 nil (fringe))
+ '(image-file-name-extensions
+   '("png" "jpeg" "jpg" "gif" "tiff" "tif" "xbm" "xpm" "pbm" "pgm" "ppm" "pnm"))
+ '(kept-old-versions 10)
+ '(large-file-warning-threshold 40000000)
+ '(package-selected-packages
+   '(treemacs-perspective treemacs-all-the-icons git treemacs-persp treemacs-magit treemacs-icons-dired treemacs-evil treemacs adaptive-wrap latex-math-preview auctex cpputils-cmake modern-cpp-font-lock ## sr-speedbar))
+ '(tab-width 4)
+ '(tags-case-fold-search nil)
+ '(tags-revert-without-query t)
+ '(text-mode-hook
+   '((lambda nil
+	   (local-set-key "\211" 'ispell-complete-word))))
+ '(tool-bar-mode nil)
+ '(w32-list-proportional-fonts t t)
+ '(which-function-mode t nil (which-func))
+ '(window-divider-default-right-width 4)
+ '(window-divider-mode t))
+
+
+;; *cg* position initial window */
+(defun set-default-window-layout ()
+  "set window pos and splits to default"
+  (interactive)
+  (set-frame-height nil 105)
+  (set-frame-width nil 560)
+  (set-frame-position (selected-frame) 5 6)
+  (setq _curbuf ( current-buffer ) )
+  (delete-other-windows)
+  (setq _tmp ( frame-first-window ) )
+  (setq _hsplit1 (split-window-horizontally) )
+  (setq _hsplit2 (split-window-horizontally) )
+  (balance-windows)
+  (setq _split1 (split-window-below 66) )
+  (setq _split2 (split-window-vertically) )
+  (select-window _hsplit2 )
+
+  )
+
+(set-default-window-layout)
+
+
+
+
+;;(set-window-buffer-in-frame 0 0 (shell ) )
+(custom-set-faces
+ ;; custom-set-faces was added by Custom.
+ ;; If you edit it by hand, you could mess it up, so be careful.
+ ;; Your init file should contain only one such instance.
+ ;; If there is more than one, they won't work right.
+ '(default ((t (:family "Tahoma" :foundry "outline" :slant normal :weight normal :height 90 :width normal))))
+ '(font-lock-bs-keywords-face ((t (:slant italic))))
+ '(font-lock-comment-face ((t (:foreground "dodger blue" :slant italic :weight normal :height 100 :width expanded :family "Times New Roman"))))
+ '(font-lock-commented-out-code-face ((t (:height 0.75))))
+ '(font-lock-constant-face ((t (:foreground "navy" :underline t))))
+ '(font-lock-function-name-face ((t (:background "lavender" :foreground "black" :weight bold))))
+ '(font-lock-keyword-face ((t (:foreground "HotPink3"))))
+ '(font-lock-level0-comment-face ((t (:foreground "medium blue" :family "Times New Roman"))))
+ '(font-lock-level2-comment-face ((t (:background "old lace" :foreground "light slate gray" :height 1 :family "Times New Roman"))))
+ '(font-lock-level3-comment-face ((t (:foreground "slate gray" :family "Times New Roman"))))
+ '(font-lock-level4-comment-face ((t (:background "old lace" :foreground "black" :height 1.2 :family "Times New Roman"))))
+ '(font-lock-level5-comment-face ((t (:weight bold :height 1.25))))
+ '(font-lock-toplevel-comment-face ((t (:height 1.5 :family "Times New Roman"))))
+ '(font-lock-variable-name-face ((t nil)))
+ '(hl-line ((t (:background "alice blue"))))
+ '(internal-border ((t (:background "gray"))))
+ '(minibuffer-prompt ((t (:foreground "darkgreen"))))
+ '(mode-line ((t (:background "royal blue" :foreground "white" :box (:line-width -1 :style released-button)))))
+ '(mode-line-inactive ((t (:inherit mode-line :background "gainsboro" :foreground "grey20" :box (:line-width -1 :color "blue") :weight light))))
+ '(tag-default-face ((t (:box (:line-width 1 :color "lemon chiffon") :weight light :height 120 :family "Roboto Mono"))))
+ '(tag-note-face ((t nil)))
+ '(window-divider ((t (:foreground "gainsboro"))))
+ '(window-divider-first-pixel ((t (:foreground "sky blue"))))
+ '(window-divider-last-pixel ((t (:foreground "blue")))))
