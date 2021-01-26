@@ -39,5 +39,5 @@
 ;; Ensure Emacs is running out of this file's directory
 (setq user-emacs-directory (file-name-directory load-file-name))
 
-;; Disable various UI elements
+;; Disable various UI elements early to get better performance
 (tool-bar-mode 0)

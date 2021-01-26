@@ -6,7 +6,10 @@
 ;; procedure isn't manual. Further, if we do lose our dependencies, we can
 ;; reproduce them down to their git hash.
 (defvar bootstrap-version)
-(setq straight-use-package-by-default t)
+(setq straight-use-package-by-default t
+      ;; Where package repositories and build directories will be stored.
+      ;; We can redirect this elsewhere in the future.
+      straight-base-dir user-emacs-directory)
 
 (let ((bootstrap-file
        (expand-file-name "straight/repos/straight.el/bootstrap.el" user-emacs-directory))

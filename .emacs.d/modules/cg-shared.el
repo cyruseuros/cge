@@ -1,66 +1,3 @@
-(set-cursor-color "#ff0000")
-
-;; save minibuffer history
-(savehist-mode 1)
-(require 'dash)
-(require 'treemacs)
-
-(require 'compile)
-;;(require 'clang-format)
-
-(global-hl-line-mode)
-(global-auto-revert-mode t)
-(setq line-number-mode t)
-
-(require 'use-package)
-
-(column-number-mode 1)
-
-(autoload 'c++-mode "cc-mode" "C++ Editing Mode" t)
-(autoload 'c-mode   "cc-mode" "C Editing Mode" t)
-
-(setq compile-command "msbuild d:\\dev\\code\\code.sln -maxcpucount:10 /p:Configuration=RelWithDebInfo 2>&1 | perl d:\\dev\\code\\tools\\msbuild_filter.pl" )
-(setq compilation-scroll-output 'first-error )
-(setq compilation-mode-hook '(lambda ()
-			       (visual-line-mode ) ) )
-
-(setq run-command "cd d:\\dev\\code\\demo && demo -novr" )
-
-(defun run_app ()
-  (interactive)
-  (shell)
-  (insert run-command)
-  (comint-send-input nil t)
-  )
-
-(defun line_up ()
-  (interactive)
-  (if mark-active (put-text-property (min (point) (mark)) (max (mark) (point)) 'display `( space . ( :align-to 20 ) ) ) )
-  )
-
-;; add CALC!!!
-(autoload 'calc-dispatch	   "calc" "Calculator Options" t)
-(autoload 'full-calc		   "calc" "Full-screen Calculator" t)
-(autoload 'full-calc-keypad	   "calc" "Full-screen X Calculator" t)
-(autoload 'calc-eval		   "calc" "Use Calculator from Lisp")
-(autoload 'defmath		   "calc" nil t t)
-(autoload 'calc			   "calc" "Calculator Mode" t)
-(autoload 'quick-calc		   "calc" "Quick Calculator" t)
-(autoload 'calc-keypad		   "calc" "X windows Calculator" t)
-(autoload 'calc-embedded	   "calc" "Use Calc inside any buffer" t)
-(autoload 'calc-embedded-activate  "calc" "Activate =>'s in buffer" t)
-(autoload 'calc-grab-region	   "calc" "Grab region of Calc data" t)
-(autoload 'calc-grab-rectangle	   "calc" "Grab rectangle of data" t)
-(autoload 'gtags-mode "gtags" "" t)
-(global-set-key "\e#" 'calc-dispatch)
-
-(defun compile_it ()
-  (interactive)
-  (save-some-buffers 1 )
-  (recompile)
-  )
-
-(global-set-key [f9] 'compile_it)
 
 (defun start-or-switch-to-shell ()
   "select shell and move to bottom"
@@ -70,7 +7,6 @@
 
 
 (global-set-key [f10] 'start-or-switch-to-shell)
-(global-set-key [f5] 'run_app)
 (setq cperl-invalid-face nil)
 
 (require 'cl )

@@ -3,12 +3,15 @@
   (load (concat (file-name-directory load-file-name) "early-init")
         nil t))
 
+;; Load all of our modules
 (add-to-list 'load-path (concat user-emacs-directory "modules"))
 (require 'cg-package)
 
 (cg-package-require
  '(
    ;;+++
+   cg-global
+   cg-app
    cg-layout
    cg-housekeeping
    cg-shared

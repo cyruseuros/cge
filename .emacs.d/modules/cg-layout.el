@@ -72,6 +72,14 @@
 (global-set-key [f1] 'cg-layout-restore-or-default-window-layout)
 (global-set-key [S-f1] 'cg-layout-save )
 
+;; TODO: Check if this function actually works
+(defun cg-layout-line-up ()
+  (interactive)
+  (when mark-active
+    (put-text-property
+     (min (point) (mark)) (max (mark) (point))
+     'display `( space . ( :align-to 20 )))))
+
 (cg-layout)
 
 (provide 'cg-layout)
