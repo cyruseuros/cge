@@ -6,7 +6,24 @@
 ;; You may delete these explanatory comments.
 ;;(package-initialize)
 
-(setq package-user-dir "d:/googledrive/emacs/share/emacs/site-lisp/elpa")
+(defvar my-wip t
+  "Whether work is in progress.
+When nil paths are interpreted as raw strings, when t, assume all
+directories are under `user-emacs-directory'.")
+
+(defun my-dir (dir)
+  "Strip disk names from paths if `my-wip'.
+Also handle special case of the googledrive directory."
+  (let ((drive-regex "[a-z]:/")
+        (gdrive-regex "googledrive/emacs/"))
+    (if my-wip
+        (let* ((no-drive-dir (replace-regexp-in-string drive-regex "" dir))
+               (no-gdrive-dir (replace-regexp-in-string gdrive-regex "" no-drive-dir))
+               (bundled-dir (concat (file-name-directory load-file-name) no-gdrive-dir)))
+          bundled-dir)
+      dir)))
+
+(setq package-user-dir (my-dir "d:/googledrive/emacs/share/emacs/site-lisp/elpa"))
 (require 'package)
 (package-initialize)
 
@@ -14,27 +31,25 @@
 (set-frame-width nil 538)
 (set-frame-position (selected-frame) 5 6)
 
-
 ;; *cg* position initial window */
 (defun set-default-window-layout ()
   "set window pos and splits to default"
-  (interactive)
-  (delete-other-windows)
-  (setq _curbuf ( current-buffer ) )
-  (delete-other-windows)
-  (setq _tmp ( frame-first-window ) )
-  (setq _hsplit1 (split-window-horizontally) )
-  (setq _hsplit2 (split-window-horizontally) )
-  (balance-windows)
-  (setq _split1 (split-window-below 66) )
-  (setq _split2 (split-window-vertically) )
-  (select-window _hsplit2 )
+  (ignore-errors
+    (interactive)
+    (delete-other-windows)
+    (setq _curbuf ( current-buffer ) )
+    (delete-other-windows)
+    (setq _tmp ( frame-first-window ) )
+    (setq _hsplit1 (split-window-horizontally) )
+    (setq _hsplit2 (split-window-horizontally) )
+    (balance-windows)
+    (setq _split1 (split-window-below 66) )
+    (setq _split2 (split-window-vertically))
+    (select-window _hsplit2 )))
 
-  )
+(add-to-list 'load-path (my-dir "d:/dev/code/emacs/"))
 
-(add-to-list 'load-path "d:/dev/code/emacs/" )
-
-(load "d:/dev/code/emacs/.emacs_shared" )
+(load (my-dir "d:/dev/code/emacs/.emacs_shared"))
 (set-default-window-layout)
 
 
