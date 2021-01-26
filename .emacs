@@ -30,22 +30,37 @@ Also handle special case of the googledrive directory."
 (set-frame-height nil 105)
 (set-frame-width nil 538)
 (set-frame-position (selected-frame) 5 6)
+;; You seem not to want this, that's why you delete windows
+(setq inhibit-startup-screen t)
 
 ;; *cg* position initial window */
 (defun set-default-window-layout ()
   "set window pos and splits to default"
-  (ignore-errors
-    (interactive)
-    (delete-other-windows)
-    (setq _curbuf ( current-buffer ) )
-    (delete-other-windows)
-    (setq _tmp ( frame-first-window ) )
-    (setq _hsplit1 (split-window-horizontally) )
-    (setq _hsplit2 (split-window-horizontally) )
-    (balance-windows)
-    (setq _split1 (split-window-below 66) )
-    (setq _split2 (split-window-vertically))
-    (select-window _hsplit2 )))
+  (interactive)
+  (delete-other-windows)
+  ;; `setq' instead of `let'. We'll use them later
+  (setq my-curbuf (current-buffer)
+        my-right-window (split-window-right)
+        my-middle-window (split-window-right))
+  (balance-windows)
+  (setq my-bottom-left-window (condition-case nil
+                                  (split-window-below 66)
+                                ;; Handle excessively small screens like mine.
+                                (error (split-window-below)))
+        my-middle-left-window (split-window-below)
+        my-top-left-window (frame-first-window))
+  ;; (my-send-buffers-to-window my-middle-left-window "*shell*" t t)
+  ;; (my-send-buffers-to-window my-bottom-left-window "*compilation*" t t)
+  ;; (my-send-buffers-to-window my-center-window (buffer-name my-curbuf) t t)
+  (select-window my-middle-window))
+
+
+(defun my-send-buffers-to-window (regex window &optional now visible)
+  "Send buffers matching REGEX to WINDOW.
+If NOW is t, cycle through all buffers and sort them.
+If VISIBLE is t, only cycle through visible buffers"
+  ())
+
 
 (add-to-list 'load-path (my-dir "d:/dev/code/emacs/"))
 
