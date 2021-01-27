@@ -1,3 +1,4 @@
+;;; .emacs -*- lexical-binding: t; -*-
 ;; run the shared one
 
 ;; Added by Package.el.  This must come before configurations of
@@ -34,26 +35,210 @@ Also handle special case of the googledrive directory."
 (setq inhibit-startup-screen t)
 
 ;; *cg* position initial window */
-(defun set-default-window-layout ()
+(defun my-set-default-window-layout ()
   "set window pos and splits to default"
   (interactive)
   (delete-other-windows)
   ;; `setq' instead of `let'. We'll use them later
   (setq my-curbuf (current-buffer)
         my-right-window (split-window-right)
-        my-middle-window (split-window-right))
-  (balance-windows)
+        my-middle-window (split-window-right)
+        my-big-parrent-window (window-parent my-middle-window))
+  (balance-windows my-big-parrent-window)
   (setq my-bottom-left-window (condition-case nil
                                   (split-window-below 66)
                                 ;; Handle excessively small screens like mine.
                                 (error (split-window-below)))
         my-middle-left-window (split-window-below)
-        my-top-left-window (frame-first-window))
-  ;; (my-send-buffers-to-window my-middle-left-window "*shell*" t t)
-  ;; (my-send-buffers-to-window my-bottom-left-window "*compilation*" t t)
-  ;; (my-send-buffers-to-window my-center-window (buffer-name my-curbuf) t t)
+        my-top-left-window (frame-first-window)
+        my-little-parent-window (window-parent my-top-left-window))
   (select-window my-middle-window))
 
+(defvar my-windows
+  '(my-right-window
+    my-middle-window
+    my-bottom-left-window
+    my-middle-left-window
+    my-top-left-window))
+
+;; Could be a macro but it's likely overkill.
+;; Elisp is a lisp-2 so we can reuse the names
+(dolist (win my-windows)
+  (fset win (lambda (buffer alist)
+              (window--display-buffer
+               buffer (symbol-value win) 'reuse alist))))
+
+;; This is where you define window behaviour It's more complicated than that,
+;; but for your use case, just make each member of the alist of the form (REGEX
+;; (FUNCTION)). The docs go into more detail but I don't think you'll need it
+(setq display-buffer-alist
+      '(("\\*shell\\*" (my-bottom-left-window))
+        ("\\*compilation\\*" (my-bottom-left-window))))
+
+(defun my-ediff-setup-function (buffer-A buffer-B buffer-C control-buffer)
+  "Stick BUFFER-A BUFFER-B in `my-right-window' and `my-middle-window'.
+If BUFFER-C is there, create a new temporary full-height window on the right and put it there.
+But the control buffer in `my-top-left-window'."
+  (when buffer-C
+    (select-window my-right-window)
+    ;; Don't use `let' we need it later
+    (setq my-extra-ediff-window (split-window-right)
+          ediff-window-C my-extra-ediff-window)
+    ;; Make sure all 3 tall windows are equal
+    (balance-windows my-big-parrent-window))
+  (with-current-buffer control-buffer
+      (setq ediff-window-A my-middle-window
+            ediff-window-B my-right-window
+            ;; Tweak this if you like, you didn't state your preference.
+            ediff-control-window my-bottom-left-window))
+  (select-window ediff-control-window))
+
+(defun my-ediff-cleanup-function ()
+  "Delete extra ediff window"
+  (when (bound-and-true-p my-extra-ediff-window)
+    (quit-window my-extra-ediff-window)))
+
+;; Move this to a `use-package' statement leter
+(setq ediff-window-setup-function #'my-ediff-setup-function)
+(with-eval-after-load 'ediff (add-to-list 'ediff-quit-hook #'my-ediff-cleanup-function))
+
+(defun my-ediff-setup-windows-plain (buffer-A buffer-B buffer-C control-buffer)
+  (with-current-buffer control-buffer
+    (setq ediff-multiframe nil))
+  (if ediff-merge-job
+      (my-ediff-setup-windows-plain-merge
+       buffer-A buffer-B buffer-C control-buffer)
+    (my-ediff-setup-windows-plain-compare
+     buffer-A buffer-B buffer-C control-buffer)))
+
+(defun my-ediff-setup-windows-plain-merge (buf-A buf-B buf-C control-buffer)
+  ;; skip dedicated and unsplittable frames
+  (ediff-destroy-control-frame control-buffer)
+  (let ((window-min-height 1)
+	(with-Ancestor-p (with-current-buffer control-buffer
+                           ediff-merge-with-ancestor-job))
+	split-window-function
+	merge-window-share merge-window-lines
+	(buf-Ancestor (with-current-buffer control-buffer
+                        ediff-ancestor-buffer))
+	wind-A wind-B wind-C wind-Ancestor)
+    (with-current-buffer control-buffer
+      (setq merge-window-share ediff-merge-window-share
+	    ;; this lets us have local versions of ediff-split-window-function
+	    split-window-function ediff-split-window-function))
+    (delete-other-windows)
+    (set-window-dedicated-p (selected-window) nil)
+    (split-window-vertically)
+    (ediff-select-lowest-window)
+    (ediff-setup-control-buffer control-buffer)
+
+    ;; go to the upper window and split it betw A, B, and possibly C
+    (other-window 1)
+    (setq merge-window-lines
+	  (max 2 (round (* (window-height) merge-window-share))))
+    (switch-to-buffer buf-A)
+    (setq wind-A (selected-window))
+
+    (split-window-vertically (max 2 (- (window-height) merge-window-lines)))
+    (if (eq (selected-window) wind-A)
+	(other-window 1))
+    (setq wind-C (selected-window))
+    (switch-to-buffer buf-C)
+
+    (when (and ediff-show-ancestor with-Ancestor-p)
+      (select-window wind-C)
+      (funcall split-window-function)
+      (when (eq (selected-window) wind-C)
+        (other-window 1))
+      (switch-to-buffer buf-Ancestor)
+      (setq wind-Ancestor (selected-window)))
+
+    (select-window wind-A)
+    (funcall split-window-function)
+
+    (if (eq (selected-window) wind-A)
+	(other-window 1))
+    (switch-to-buffer buf-B)
+    (setq wind-B (selected-window))
+
+    (with-current-buffer control-buffer
+      (setq ediff-window-A wind-A
+	    ediff-window-B wind-B
+	    ediff-window-C wind-C
+            ediff-window-Ancestor wind-Ancestor))
+
+    (ediff-select-lowest-window)
+    (ediff-setup-control-buffer control-buffer)
+    ))
+
+(defun my-ediff-setup-windows-plain-compare (buf-A buf-B buf-C control-buffer)
+  ;; skip dedicated and unsplittable frames
+  (ediff-destroy-control-frame control-buffer)
+  (let ((window-min-height 1)
+	split-window-function wind-width-or-height
+	three-way-comparison
+	wind-A-start wind-B-start wind-A wind-B wind-C)
+    (with-current-buffer control-buffer
+      (setq wind-A-start (ediff-overlay-start
+			  (ediff-get-value-according-to-buffer-type
+			   'A ediff-narrow-bounds))
+	    wind-B-start (ediff-overlay-start
+			  (ediff-get-value-according-to-buffer-type
+			   'B  ediff-narrow-bounds))
+	    ;; this lets us have local versions of ediff-split-window-function
+	    split-window-function ediff-split-window-function
+	    three-way-comparison ediff-3way-comparison-job))
+    ;; if in minibuffer go somewhere else
+    (if (save-match-data
+	  (string-match "\\*Minibuf-" (buffer-name (window-buffer))))
+	(select-window (next-window nil 'ignore-minibuf)))
+    (delete-other-windows)
+    (set-window-dedicated-p (selected-window) nil)
+    (split-window-vertically)
+    (ediff-select-lowest-window)
+    (ediff-setup-control-buffer control-buffer)
+
+    ;; go to the upper window and split it betw A, B, and possibly C
+    (other-window 1)
+    (switch-to-buffer buf-A)
+    (setq wind-A (selected-window))
+    (if three-way-comparison
+	(setq wind-width-or-height
+	      (/ (if (eq split-window-function #'split-window-vertically)
+		     (window-height wind-A)
+		   (window-width wind-A))
+		 3)))
+
+    (funcall split-window-function wind-width-or-height)
+
+    (if (eq (selected-window) wind-A)
+	(other-window 1))
+    (switch-to-buffer buf-B)
+    (setq wind-B (selected-window))
+
+    (if three-way-comparison
+	(progn
+	  (funcall split-window-function) ; equally
+	  (if (eq (selected-window) wind-B)
+	      (other-window 1))
+	  (switch-to-buffer buf-C)
+	  (setq wind-C (selected-window))))
+
+    (with-current-buffer control-buffer
+      (setq ediff-window-A wind-A
+	    ediff-window-B wind-B
+	    ediff-window-C wind-C))
+
+    ;; It is unlikely that we will want to implement 3way window comparison.
+    ;; So, only buffers A and B are used here.
+    (if ediff-windows-job
+	(progn
+	  (set-window-start wind-A wind-A-start)
+	  (set-window-start wind-B wind-B-start)))
+
+    (ediff-select-lowest-window)
+    (ediff-setup-control-buffer control-buffer)
+    ))
 
 (defun my-send-buffers-to-window (regex window &optional now visible)
   "Send buffers matching REGEX to WINDOW.
@@ -65,7 +250,7 @@ If VISIBLE is t, only cycle through visible buffers"
 (add-to-list 'load-path (my-dir "d:/dev/code/emacs/"))
 
 (load (my-dir "d:/dev/code/emacs/.emacs_shared"))
-(set-default-window-layout)
+(my-set-default-window-layout)
 
 
 (custom-set-variables
@@ -108,7 +293,7 @@ If VISIBLE is t, only cycle through visible buffers"
 
 
 
-;;(set-default-window-layout)
+;;(my-set-default-window-layout)
 ;;(treemacs)
 
 
