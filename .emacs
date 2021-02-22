@@ -79,12 +79,22 @@ Also handle special case of the googledrive directory."
     my-middle-left-window
     my-top-left-window))
 
+(defun my-visible-buffers (&optional buffer-list)
+  "Return a list of visible buffers (i.e. not buried)."
+  (let ((buffers (delete-dups (mapcar #'window-buffer (window-list)))))
+    (if buffer-list
+        (cl-delete-if (lambda (b) (memq b buffer-list))
+                      buffers)
+      (delete-dups buffers))))
+
 ;; Could be a macro but it's likely overkill.
 ;; Elisp is a lisp-2 so we can reuse the names
 (dolist (win my-windows)
   (fset win (lambda (buffer alist)
-              (window--display-buffer
-               buffer (symbol-value win) 'reuse alist))))
+              (when (not (member buffer (my-visible-buffers)))
+                ;; Only do anything on buffers that are not already visible.
+                ;; Don't focus them either let the default code take it from here.
+                (set-window-buffer (symbol-value win) buffer)))))
 
 ;; This is where you define window behaviour It's more complicated than that,
 ;; but for your use case, just make each member of the alist of the form
