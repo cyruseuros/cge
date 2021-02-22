@@ -101,21 +101,31 @@
 (autoload 'gtags-mode "gtags" "" t)
 (global-set-key "\e#" 'calc-dispatch)
 
-(defun restore-or-default-window-layout ()
+(defvar my-window-snapshots '())
+
+(defun my-push-window-snapshot ()
+  "Store current window configuration in the `my-window-snapshots' stack."
   (interactive)
-  (if (boundp 'saved-window-layout )
-      (set-window-configuration saved-window-layout )
-    (set-default-window-layout ) ) )
+  ;; let messy function do what it wants
+  (set-frame-parameter nil 'unsplittable nil)
+  (push (current-window-configuration) my-window-snapshots))
 
-(defun save-default-window-layout ()
+(defun my-pop-window-snapshot ()
+  "Restore most recent window snapshot from the `my-window-snapshots' stack.
+Set default layout on failure."
   (interactive)
-  (setq saved-window-layout (current-window-configuration ) )
-  )
+  (condition-case nil
+      (set-window-configuration (pop my-window-snapshots))
+    (error (my-set-default-window-layout)))
+  ;; prevent any further splitting
+  (set-frame-parameter nil 'unsplittable t))
 
-(global-set-key [f1] 'restore-or-default-window-layout)
-(global-set-key [S-f1] 'save-default-window-layout )
+(global-set-key [f1] 'my-pop-window-snapshot)
+(global-set-key [S-f1] 'my-push-window-snapshot)
 
-
+(with-eval-after-load 'ediff
+  (add-hook 'ediff-before-setup-hook #'my-push-window-snapshot)
+  (add-hook 'ediff-quit-hook #'my-pop-window-snapshot))
 
 (defun compile_it ()
   (interactive)

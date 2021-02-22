@@ -56,22 +56,6 @@ Also handle special case of the googledrive directory."
         my-little-parent-window (window-parent my-top-left-window))
   (select-window my-middle-window))
 
-(defvar my-window-snapshots '())
-
-(defun my-push-window-snapshot ()
-  "Store current window configuration in the `my-window-snapshots' stack."
-  (set-frame-parameter nil 'unsplittable nil)
-  (push (current-window-configuration) my-window-snapshots))
-
-(defun my-pop-window-snapshot ()
-  "Restore most recent window snapshot from the `my-window-snapshots' stack."
-  (set-window-configuration (pop my-window-snapshots))
-  (set-frame-parameter nil 'unsplittable t))
-
-(with-eval-after-load 'ediff
-  (add-hook 'ediff-before-setup-hook #'my-push-window-snapshot)
-  (add-hook 'ediff-quit-hook #'my-pop-window-snapshot))
-
 (defvar my-windows
   '(my-right-window
     my-middle-window

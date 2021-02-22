@@ -52,7 +52,7 @@
 
 
 ;; *cg* position initial window */
-(defun set-default-window-layout ()
+(defun my-set-default-window-layout ()
   "set window pos and splits to default"
   (interactive)
   (set-frame-height nil 105)
