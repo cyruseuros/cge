@@ -7,3 +7,5 @@
       compile-command "msbuild d:\\dev\\code\\code.sln -maxcpucount:10 /p:Configuration=RelWithDebInfo 2>&1 | perl d:\\dev\\code\\tools\\msbuild_filter.pl"
       compilation-scroll-output 'first-error)
 (add-hook 'compilation-mode-hook #'visual-line-mode)
+
+(provide 'cg-global)

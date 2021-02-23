@@ -1,3 +1,113 @@
+(set-cursor-color "#ff0000")
+
+;; save minibuffer history
+(savehist-mode 1)
+
+(require 'package)
+(add-to-list 'package-archives '("melpa" . "http://melpa.org/packages/"))
+(require 'dash)
+(require 'treemacs)
+
+(require 'compile)
+;;(require 'clang-format)
+
+(global-hl-line-mode)
+(global-auto-revert-mode t)
+(setq line-number-mode t)
+
+(require 'use-package)
+
+(column-number-mode 1)
+
+
+(autoload 'windmove-find-other-window "windmove"
+  "Return the window object in direction DIR.
+
+\(fn dir &optional arg window)")
+
+(declare-function windmove-find-other-window "windmove" (dir &optional arg window))
+
+(defun get-window-in-frame (x y &optional frame)
+  "Find Xth horizontal and Yth vertical window from top-left of FRAME."
+  (let ((orig-x x) (orig-y y)
+        (w (frame-first-window frame)))
+    (while (and (windowp w) (> x 0))
+      (setq w (windmove-find-other-window 'right 1 w)
+            x (1- x)))
+    (while (and (windowp w) (> y 0))
+      (setq w (windmove-find-other-window 'down 1 w)
+            y (1- y)))
+    (unless (windowp w)
+      (error "No window at (%d, %d)" orig-x orig-y))
+    w))
+
+(defun set-window-buffer-in-frame (x y buffer &optional frame)
+  "Set Xth horizontal and Yth vertical window to BUFFER from top-left of FRAME."
+  (set-window-buffer (get-window-in-frame x y frame) buffer))
+
+(defun split-window-multiple-ways (x y)
+  "Split the current frame into a grid of X columns and Y rows."
+  (interactive "nColumns: \nnRows: ")
+  ;; one window
+  (delete-other-windows)
+  (dotimes (i (1- x))
+    (split-window-horizontally)
+    (dotimes (j (1- y))
+      (split-window-vertically))
+    (other-window y))
+  (dotimes (j (1- y))
+    (split-window-vertically))
+  (balance-windows))
+
+;;(require 'auto-dim-other-buffers)
+
+
+(autoload 'c++-mode "cc-mode" "C++ Editing Mode" t)
+(autoload 'c-mode   "cc-mode" "C Editing Mode" t)
+
+(tool-bar-mode 0)
+(setq compile-command "msbuild d:\\dev\\code\\code.sln -maxcpucount:10 /p:Configuration=RelWithDebInfo 2>&1 | perl d:\\dev\\code\\tools\\msbuild_filter.pl" )
+(setq compilation-scroll-output 'first-error )
+(setq compilation-mode-hook '(lambda ()
+			       (visual-line-mode ) ) )
+
+(setq run-command "cd d:\\dev\\code\\demo && demo -novr" )
+
+(defun run_app ()
+  (interactive)
+  (shell)
+  (insert run-command)
+  (comint-send-input nil t)
+  )
+
+(defun line_up ()
+  (interactive)
+  (if mark-active (put-text-property (min (point) (mark)) (max (mark) (point)) 'display `( space . ( :align-to 20 ) ) ) )
+  )
+
+;; add CALC!!!
+(autoload 'calc-dispatch	   "calc" "Calculator Options" t)
+(autoload 'full-calc		   "calc" "Full-screen Calculator" t)
+(autoload 'full-calc-keypad	   "calc" "Full-screen X Calculator" t)
+(autoload 'calc-eval		   "calc" "Use Calculator from Lisp")
+(autoload 'defmath		   "calc" nil t t)
+(autoload 'calc			   "calc" "Calculator Mode" t)
+(autoload 'quick-calc		   "calc" "Quick Calculator" t)
+(autoload 'calc-keypad		   "calc" "X windows Calculator" t)
+(autoload 'calc-embedded	   "calc" "Use Calc inside any buffer" t)
+(autoload 'calc-embedded-activate  "calc" "Activate =>'s in buffer" t)
+(autoload 'calc-grab-region	   "calc" "Grab region of Calc data" t)
+(autoload 'calc-grab-rectangle	   "calc" "Grab rectangle of data" t)
+(autoload 'gtags-mode "gtags" "" t)
+(global-set-key "\e#" 'calc-dispatch)
+
+(defun compile_it ()
+  (interactive)
+  (save-some-buffers 1 )
+  (recompile)
+  )
+
+(global-set-key [f9] 'compile_it)
 
 (defun start-or-switch-to-shell ()
   "select shell and move to bottom"

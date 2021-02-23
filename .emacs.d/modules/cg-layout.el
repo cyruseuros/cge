@@ -1,5 +1,72 @@
 ;;; cg-layout.el --- Personal window management -*- lexical-binding: t; -*-
 
+;; *cg* position initial window */
+(defun cg-layout ()
+  "set window pos and splits to default"
+  (interactive)
+  (delete-other-windows)
+  (ignore-errors
+    (cg-layout-frame))
+  ;; Prevent things that aren't user commands from splitting our windows
+  (set-frame-parameter nil 'unsplittable t)
+  ;; `setq' instead of `let'. We'll use them later
+  (setq my-curbuf (current-buffer)
+        my-right-window (split-window-right)
+        my-middle-window (split-window-right)
+        my-big-parrent-window (window-parent my-middle-window))
+  (balance-windows my-big-parrent-window)
+  (setq my-bottom-left-window (condition-case nil
+                                  (split-window-below 66)
+                                ;; Handle excessively small screens like mine.
+                                (error (split-window-below)))
+        my-middle-left-window (split-window-below)
+        my-top-left-window (frame-first-window)
+        my-little-parent-window (window-parent my-top-left-window))
+  (select-window my-middle-window))
+
+(defvar cg-layout-windows
+  '(my-right-window
+    my-middle-window
+    my-bottom-left-window
+    my-middle-left-window
+    my-top-left-window))
+
+(defun cg-layout-visible-buffers (&optional buffer-list)
+  "Return a list of visible buffers (i.e. not buried)."
+  (let ((buffers (delete-dups (mapcar #'window-buffer (window-list)))))
+    (if buffer-list
+        (cl-delete-if (lambda (b) (memq b buffer-list))
+                      buffers)
+      (delete-dups buffers))))
+
+;; Could be a macro but it's likely overkill.
+;; Elisp is a lisp-2 so we can reuse the names
+(dolist (win cg-layout-windows)
+  (fset win (lambda (buffer alist)
+              (when (not (member buffer (cg-layout-visible-buffers)))
+                ;; Only do anything on buffers that are not already visible.
+                ;; Don't focus them either let the default code take it from here.
+                (set-window-buffer (symbol-value win) buffer)))))
+
+;; This is where you define window behaviour It's more complicated than that,
+;; but for your use case, just make each member of the alist of the form
+;; (REGEX/MATCHER-FUNCTION (FUNCTION [. ACTIONS])). The docs go into more detail
+;; but I don't think you'll need it
+(setq display-buffer-overriding-action nil
+      display-buffer-alist
+      '(("\\*shell\\*" (my-bottom-left-window))
+        ("\\*Completions\\*" (my-middle-left-window))
+        ("\\*compilation\\*" (my-bottom-left-window)))
+      display-buffer-base-action '(my-top-left-window))
+
+;; Your current window configuration breaks `ediff'. I can write a custom
+;; `ediff-window-setup-function' but it just makes certain assumptions about
+;; windows sizes and their relationship that simply aren't true in your case.
+;; Changing the window configuration kind of defeates the purpose of not
+;; disrupting your workflow. For now, I'll just make sure that `ediff' drops you
+;; back right where you were before.
+(setq ediff-window-setup-function #'ediff-setup-windows-plain
+      ediff-split-window-function #'split-window-right)
 
 (defun cg-layout-frame ()
   (interactive)
@@ -7,18 +74,6 @@
   (set-frame-width nil 538)
   (set-frame-position (selected-frame) 5 6))
 
-(defun cg-layout ()
-  (interactive)
-  ;; On some screens the frame isn't big enough for splits despite
-  ;; `cg-layout-frame'. Ignore the resulting errors and do what you can.
-  (ignore-errors
-    (cg-layout-frame)
-    (delete-other-windows)
-    (split-window-horizontally)
-    (let ((center-split (split-window-horizontally)))
-      (split-window-below 66)
-      (split-window-vertically)
-      (select-window center-split))))
 
 (autoload 'windmove-find-other-window "windmove"
   "Return the window object in direction DIR.
@@ -59,18 +114,31 @@
     (split-window-vertically))
   (balance-windows))
 
-(defun cg-layout-restore-or-default ()
-  (interactive)
-  (if (boundp 'saved-window-layout )
-      (set-window-configuration saved-window-layout )
-    (set-default-window-layout ) ) )
+(defvar cg-layout-snapshots '())
 
-(defun cg-layout-save ()
+(defun cg-layout-push-snapshot ()
+  "Store current window configuration in the `cg-layout-snapshots' stack."
   (interactive)
-  (setq saved-window-layout (current-window-configuration ) ))
+  ;; let messy function do what it wants
+  (set-frame-parameter nil 'unsplittable nil)
+  (push (current-window-configuration) cg-layout-snapshots))
 
-(global-set-key [f1] 'cg-layout-restore-or-default-window-layout)
-(global-set-key [S-f1] 'cg-layout-save )
+(defun cg-layout-pop-snapshot ()
+  "Restore most recent window snapshot from the `cg-layout-snapshots' stack.
+Set default layout on failure."
+  (interactive)
+  (condition-case nil
+      (set-window-configuration (pop cg-layout-snapshots))
+    (error (my-set-default-window-layout)))
+  ;; prevent any further splitting
+  (set-frame-parameter nil 'unsplittable t))
+
+(global-set-key [f1] 'cg-layout-pop-snapshot)
+(global-set-key [S-f1] 'cg-layout-push-snapshot)
+
+(with-eval-after-load 'ediff
+  (add-hook 'ediff-before-setup-hook #'cg-layout-push-snapshot)
+  (add-hook 'ediff-quit-hook #'cg-layout-pop-snapshot))
 
 ;; TODO: Check if this function actually works
 (defun cg-layout-line-up ()

@@ -11,7 +11,7 @@
  '(
    ;;+++
    cg-global
-   cg-app
+   ;; cg-app
    cg-layout
    cg-housekeeping
    cg-shared
