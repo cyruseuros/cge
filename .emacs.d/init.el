@@ -5,12 +5,13 @@
 
 ;; Load all of our modules
 (add-to-list 'load-path (concat user-emacs-directory "modules"))
+(add-to-list 'load-path (concat user-emacs-directory "vendor"))
 (require 'cg-package)
 
 (cg-package-require
  '(
    ;;+++
-   cg-global
+   cg-core
    cg-layout
    cg-housekeeping
    cg-calc
@@ -18,10 +19,12 @@
    cg-treemacs
    cg-vc
    cg-theme
-   cg-shared
    cg-shell
-   cg-fns ; TODO: sort between modules
-   id-select
+   cg-fns ; TODO: Sort between modules
    cg-completion
+   cg-scratch
+   cg-el
+   cg-perl
+   cg-nav ; TODO: Consider separating text and window/buffer nav
    ;;+++
    ))

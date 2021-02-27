@@ -1,14 +1,27 @@
+;;; cg-core.el -*- lexical-binding: t; -*-
+
 (global-display-line-numbers-mode +1)
 (global-auto-revert-mode +1)
 (global-hl-line-mode +1)
 
+(electric-indent-mode +1)
+(transient-mark-mode +1)
 (column-number-mode +1)
 (save-place-mode +1)
 (savehist-mode +1)
 
-(setq tab-width 4
+(put 'eval-expression 'disabled nil)
+(put 'upcase-region 'disabled nil)
+(put 'downcase-region 'disabled nil)
+(put 'narrow-to-region 'disabled nil)
+
+(setq user-full-name "Chris Green"
+      tab-width 4
       visible-bell t
+      mouse-scroll-delay 0
       auto-save-default t
+      search-highlight t
+      query-replace-highlight t
       hscroll-step 8
       truncate-lines t
       find-file-visit-truename t
@@ -33,4 +46,4 @@
                 ("makefile" . makefile-mode))
 	      auto-mode-alist))
 
-(provide 'cg-global)
+(provide 'cg-core)

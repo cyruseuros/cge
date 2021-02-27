@@ -31,6 +31,9 @@
   :init (setq minibuffer-complete-cycle t))
 
 (use-package dabbrev
+  :bind
+  (([backtab] . dabbrev-expand)
+   ([S-tab] . dabbrev-expand))
   :init
   ;; Make dynamic abbrevs case-sensitive
   (setq dabbrev-case-fold-search nil)
