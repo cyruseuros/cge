@@ -40,4 +40,5 @@
 (setq user-emacs-directory (file-name-directory load-file-name))
 
 ;; Disable various UI elements early to get better performance
-(tool-bar-mode 0)
+(tool-bar-mode -1)
+(scroll-bar-mode -1)

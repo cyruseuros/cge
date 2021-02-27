@@ -11,9 +11,17 @@
  '(
    ;;+++
    cg-global
-   ;; cg-app
    cg-layout
    cg-housekeeping
+   cg-calc
+   cg-app
+   cg-treemacs
+   cg-vc
+   cg-theme
    cg-shared
+   cg-shell
+   cg-fns ; TODO: sort between modules
+   id-select
+   cg-completion
    ;;+++
    ))

@@ -59,28 +59,15 @@
         ("\\*compilation\\*" (my-bottom-left-window)))
       display-buffer-base-action '(my-top-left-window))
 
-;; Your current window configuration breaks `ediff'. I can write a custom
-;; `ediff-window-setup-function' but it just makes certain assumptions about
-;; windows sizes and their relationship that simply aren't true in your case.
-;; Changing the window configuration kind of defeates the purpose of not
-;; disrupting your workflow. For now, I'll just make sure that `ediff' drops you
-;; back right where you were before.
-(setq ediff-window-setup-function #'ediff-setup-windows-plain
-      ediff-split-window-function #'split-window-right)
-
 (defun cg-layout-frame ()
   (interactive)
   (set-frame-height nil 105)
   (set-frame-width nil 538)
   (set-frame-position (selected-frame) 5 6))
 
-
-(autoload 'windmove-find-other-window "windmove"
-  "Return the window object in direction DIR.
-
-\(fn dir &optional arg window)")
-
-(declare-function windmove-find-other-window "windmove" (dir &optional arg window))
+(use-package windmove
+  :init (windmove-default-keybindings 'meta)
+  :commands (windmove-find-other-window))
 
 (defun cg-layout-window-in-frame (x y &optional frame)
   "Find Xth horizontal and Yth vertical window from top-left of FRAME."
@@ -135,10 +122,6 @@ Set default layout on failure."
 
 (global-set-key [f1] 'cg-layout-pop-snapshot)
 (global-set-key [S-f1] 'cg-layout-push-snapshot)
-
-(with-eval-after-load 'ediff
-  (add-hook 'ediff-before-setup-hook #'cg-layout-push-snapshot)
-  (add-hook 'ediff-quit-hook #'cg-layout-pop-snapshot))
 
 ;; TODO: Check if this function actually works
 (defun cg-layout-line-up ()

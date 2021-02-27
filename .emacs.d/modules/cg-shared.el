@@ -1,248 +1,9 @@
-(set-cursor-color "#ff0000")
-
-;; save minibuffer history
-(savehist-mode 1)
-
-(require 'package)
-(add-to-list 'package-archives '("melpa" . "http://melpa.org/packages/"))
-(require 'dash)
-(require 'treemacs)
-
-(require 'compile)
-;;(require 'clang-format)
-
-(global-hl-line-mode)
-(global-auto-revert-mode t)
-(setq line-number-mode t)
-
-(require 'use-package)
-
-(column-number-mode 1)
-
-
-(autoload 'windmove-find-other-window "windmove"
-  "Return the window object in direction DIR.
-
-\(fn dir &optional arg window)")
-
-(declare-function windmove-find-other-window "windmove" (dir &optional arg window))
-
-(defun get-window-in-frame (x y &optional frame)
-  "Find Xth horizontal and Yth vertical window from top-left of FRAME."
-  (let ((orig-x x) (orig-y y)
-        (w (frame-first-window frame)))
-    (while (and (windowp w) (> x 0))
-      (setq w (windmove-find-other-window 'right 1 w)
-            x (1- x)))
-    (while (and (windowp w) (> y 0))
-      (setq w (windmove-find-other-window 'down 1 w)
-            y (1- y)))
-    (unless (windowp w)
-      (error "No window at (%d, %d)" orig-x orig-y))
-    w))
-
-(defun set-window-buffer-in-frame (x y buffer &optional frame)
-  "Set Xth horizontal and Yth vertical window to BUFFER from top-left of FRAME."
-  (set-window-buffer (get-window-in-frame x y frame) buffer))
-
-(defun split-window-multiple-ways (x y)
-  "Split the current frame into a grid of X columns and Y rows."
-  (interactive "nColumns: \nnRows: ")
-  ;; one window
-  (delete-other-windows)
-  (dotimes (i (1- x))
-    (split-window-horizontally)
-    (dotimes (j (1- y))
-      (split-window-vertically))
-    (other-window y))
-  (dotimes (j (1- y))
-    (split-window-vertically))
-  (balance-windows))
-
-;;(require 'auto-dim-other-buffers)
-
-
-(autoload 'c++-mode "cc-mode" "C++ Editing Mode" t)
-(autoload 'c-mode   "cc-mode" "C Editing Mode" t)
-
-(tool-bar-mode 0)
-(setq compile-command "msbuild d:\\dev\\code\\code.sln -maxcpucount:10 /p:Configuration=RelWithDebInfo 2>&1 | perl d:\\dev\\code\\tools\\msbuild_filter.pl" )
-(setq compilation-scroll-output 'first-error )
-(setq compilation-mode-hook '(lambda ()
-			       (visual-line-mode ) ) )
-
-(setq run-command "cd d:\\dev\\code\\demo && demo -novr" )
-
-(defun run_app ()
-  (interactive)
-  (shell)
-  (insert run-command)
-  (comint-send-input nil t)
-  )
-
-(defun line_up ()
-  (interactive)
-  (if mark-active (put-text-property (min (point) (mark)) (max (mark) (point)) 'display `( space . ( :align-to 20 ) ) ) )
-  )
-
-;; add CALC!!!
-(autoload 'calc-dispatch	   "calc" "Calculator Options" t)
-(autoload 'full-calc		   "calc" "Full-screen Calculator" t)
-(autoload 'full-calc-keypad	   "calc" "Full-screen X Calculator" t)
-(autoload 'calc-eval		   "calc" "Use Calculator from Lisp")
-(autoload 'defmath		   "calc" nil t t)
-(autoload 'calc			   "calc" "Calculator Mode" t)
-(autoload 'quick-calc		   "calc" "Quick Calculator" t)
-(autoload 'calc-keypad		   "calc" "X windows Calculator" t)
-(autoload 'calc-embedded	   "calc" "Use Calc inside any buffer" t)
-(autoload 'calc-embedded-activate  "calc" "Activate =>'s in buffer" t)
-(autoload 'calc-grab-region	   "calc" "Grab region of Calc data" t)
-(autoload 'calc-grab-rectangle	   "calc" "Grab rectangle of data" t)
-(autoload 'gtags-mode "gtags" "" t)
-(global-set-key "\e#" 'calc-dispatch)
-
-(defun compile_it ()
-  (interactive)
-  (save-some-buffers 1 )
-  (recompile)
-  )
-
-(global-set-key [f9] 'compile_it)
-
-(defun start-or-switch-to-shell ()
-  "select shell and move to bottom"
-  (interactive)
-  (shell)
-  (end-of-buffer))
-
-
-(global-set-key [f10] 'start-or-switch-to-shell)
-(setq cperl-invalid-face nil)
-
-(require 'cl )
-(require 'cmake-mode)
-;; set tab size to 4 for valve src code
-(setq default-tab-width 4)
-(setq tab-width 4)
-
-(setq visible-bell t )
-
-(c-add-style "valve" '(
-		       (c-basic-offset . 4)
-		       (c-commentonly-line-offset . 0)
-		       (c-offsets-alist . ((statement-block-intro . +)
-					   (knr-argdecl-intro . +)
-					   (inline-open . 0)
-					   (block-open . -)
-					   (label . -)
-					   (statement-cont . +)
-					   ))
-		       )
-	     )
-
-(setq auto-mode-alist
-      (append '(("\\.C$"  . c++-mode)
-		("\\.cc$" . c++-mode)
-		("\\.inl$" . c++-mode)
-		("\\.cpp$" . c++-mode)
-		("\\.hlsl$" . c++-mode)
-		("\\.fxc$" . c++-mode)
-		("\\.vfx$" . c++-mode)
-		("\\.c$"  . c++-mode)   ; to edit C code
-		("\\.h$"  . c++-mode)   ; to edit C code
-		("\\.db$" . sql-mode)
-		("\\.pl$" . cperl-mode)
-		("\\.rls" . lisp-mode)
-		("\\.emacs_shared" . lisp-mode)
-		("\\.cmd$" . cmd-mode)
-		("\\.bat$" . cmd-mode)
-		("makefile" . makefile-mode)
-		) auto-mode-alist))
-
-(require 'cg-fns)
-(require 'id-select)
-
-(require 'minibuffer-complete-cycle)
-(setq minibuffer-complete-cycle t)
-
-(setq find-file-visit-truename t)
-(setq frame-title-format "%b - Emacs")
-(setq icon-title-format "%b - Emacs")
-
-;; *cg* turn on auto-save
-(setq auto-save-default t)
-
-(setq default-frame-alist
-      (append '(
-		(vertical-scroll-bars nil)
-		(internal-border-width . 2) ;add a little border to separate the menu bar etc.
-		)
-	      default-frame-alist))
-(scroll-bar-mode -1)
-
-
-;;*cg* move cursor to last visited position when loading a file
-(require 'saveplace)
-(setq-default save-place t)
-
-;;*cg* change paren matching blink to be faster
-(setq blink-matching-delay 0.5)
-
-
-(add-hook 'ido-setup-hook 'ido-my-keys)
-
-(defun my-ido-insert-slash (arg)
-  "insert a slash"
-  (interactive "p")
-  (insert "/" ) )
-
-(defun ido-my-keys ()
-  "Add my keybindings for ido."
-  (define-key ido-file-completion-map "\\" 'my-ido-insert-slash)
-  )
-
-
-(defun ido-find-file-in-tag-files ()
-  (interactive)
-  (save-excursion
-    (let ((enable-recursive-minibuffers t))
-      (visit-tags-table-buffer))
-    (find-file
-     (expand-file-name
-      (ido-completing-read
-       "Project file: " (tags-table-files) nil t)))))
-;;(ido-mode)
 
 ;; *cg* c-backspace = del word backwards
 (global-set-key [C-backspace] 'backward-kill-word)
 ;; *cg* automagic complete in minibuffer
-(require 'icomplete)
 
-;; *CG* add ediff
-(autoload 'ediff-buffers "ediff" "Visual interface to diff" t)
-(autoload 'ediff  "ediff"  "Visual interface to diff" t)
-(autoload 'ediff-files "ediff" "Visual interface to diff" t)
-(autoload 'ediff-windows "ediff" "Visual interface to diff" t)
-(autoload 'ediff-small-regions "ediff" "Visual interface to diff" t)
-(autoload 'ediff-large-regions "ediff" "Visual interface to diff" t)
-(autoload 'epatch  "ediff"  "Visual interface to patch" t)
-(autoload 'ediff-patch-file "ediff" "Visual interface to patch" t)
-(autoload 'ediff-patch-buffer "ediff" "Visual interface to patch" t)
-(autoload 'epatch-buffer "ediff" "Visual interface to patch" t)
-(autoload 'ediff-revision "ediff"
-  "Interface to diff & version control" t)
-
-(setq ediff-default-variant 'default-A)
 (put 'narrow-to-region 'disabled nil)
-
-;; *CG* change ignored extensions
-(setq completion-ignored-extensions
-      '(".o" ".err" ".elc" "~" ".com" ".exe" ".lib" ".flb"
-	".dll" ".obj" ".bak" ".ico" ".zip" ".zoo" ".arj" ".lzh" ))
-
-;; *CG* make dynamic abbrevs case-sensitive
-(setq dabbrev-case-fold-search nil)
-(setq dabbrev-case-replace nil)
 
 
 
@@ -254,44 +15,8 @@
     (set-selective-display (+ (current-column) 1)))
   )
 
-
 (global-set-key "\C-x$" 'my-set-selective-display)
 ;; *cg* enable horizontal scroll and set step to 8
-(setq hscroll-step 8)
-(setq-default truncate-lines t)
-
-;; *cg* make italic and bold visible in color
-(set-face-foreground 'bold "magenta")
-(set-face-background 'bold "white")
-(set-face-foreground 'bold-italic "chocolate")
-(set-face-foreground 'italic "blue")
-(make-face 'extra)
-
-(setq font-lock-maximum-decoration t)
-(setq font-lock-maximum-size (* 1024 300))
-
-
-(defgroup chris nil
-  "chris stuff"
-  :prefix "chris-"
-  )
-
-
-(setq font-lock-face-attributes
-      '(
-	(font-lock-keyword-face "black" "white" t nil nil )
-	(font-lock-string-face "dark violet" "white" nil nil nil)
-	(font-lock-comment-face "blue" "white" nil t nil)
-	(font-lock-function-name-face "black" "yellow" nil nil nil)
-	(font-lock-variable-name-face "orangered1" "white" nil nil nil)
-	(font-lock-type-face "maroon" "white" nil nil nil)
-	;;	(font-lock-reference-face "yellow4" "white" nil nil nil)
-	;;	(font-lock-bracket-face "black" "slategray1" nil nil nil)
-
-	))
-
-;; *cg* keep font-lock files in \.emacs-flc
-(setq fast-lock-cache-directories '("~/.emacs-flc" "."))
 
 ;; *cg* make scratch buffer unkillable
 (save-excursion
@@ -357,8 +82,6 @@
 (setq next-line-add-newlines nil)
 
 
-(windmove-default-keybindings 'meta)
-
 ;; Dont show the GNU splash screen
 (setq inhibit-startup-message t)
 
@@ -390,10 +113,6 @@
 ;; *cg* and make ctrl-alt-y bury code
 ;; *cg* make alt-right-mouse pop up c file
 
-(setq font-lock-maximum-decoration '((c-mode . 3) (c++-mode . 3)
-				     (makefile-mode . 3) (cperl-mode . 3)
-				     (lisp-mode .3 )))
-
 
 (defun clang-format-command ()
   "clang format buffer or region"
@@ -402,7 +121,6 @@
     (clang-format-buffer))
   (deactivate-mark)
   )
-
 
 
 (require 'prettycpp)
@@ -423,14 +141,14 @@
   (setq tab-width 4 )
   (setq c-basic-offset 4)
                                         ;  (gtags-mode 1)
-  (define-key c-mode-map "\C-m" 'indent-and-newline-and-indent)
+  (define-key c-mode-map "\C-m" 'cg-fns-newline-and-indent)
   (local-set-key "\M-r" 'gtags-find-rtag)
   (local-set-key [C-M-tab] 'clang-format-region)
-  (local-set-key "\t" 'my-indent-command)
+  (local-set-key "\t" 'cg-fns-indent-command)
   (local-set-key "\M-s" 'visit-other-file )
   (local-set-key "\M-p" 'visit-file-other-branch )
-  (local-set-key [left] 'hungry-backward-char)
-  (local-set-key [right] 'hungry-forward-char)
+  (local-set-key [left] 'cg-fns-hungry-backward-char)
+  (local-set-key [right] 'cg-fns-hungry-forward-char)
                                         ;  (setq font-lock-keywords (append '(("hello" . font-lock-reference-face)) font-lock-keywords))
   (local-set-key [M-mouse-2] 'imenu))
 
@@ -440,21 +158,20 @@
   (font-lock-mode t)
   )
 
-(defun my-indent-command-lisp ()
+(defun cg-fns-indent-command-lisp ()
   "indent line, or region if mark active"
   (interactive)
   (if mark-active (indent-region (mark) (point) nil)
     (lisp-indent-line))
-  (deactivate-mark)
-  )
+  (deactivate-mark))
 
 (defun set-lisp-preferences ()
   "set up defaults for lisp mode"
   (font-lock-mode t)
   (define-key emacs-lisp-mode-map "\C-m" 'newline-and-indent)
-  (local-set-key [left] 'hungry-backward-char)
-  (local-set-key [right] 'hungry-forward-char)
-  (local-set-key "\t" 'my-indent-command-lisp)
+  (local-set-key [left] 'cg-fns-hungry-backward-char)
+  (local-set-key [right] 'cg-fns-hungry-forward-char)
+  (local-set-key "\t" 'cg-fns-indent-command-lisp)
   (local-set-key "\C-c\C-c" 'comment-region)
   (local-set-key [M-mouse-2] 'imenu))
 
@@ -467,8 +184,8 @@
 (defun set-perl-preferences ()
   "set up defaults for perl mode"
   (font-lock-mode t)
-  (local-set-key [left] 'hungry-backward-char)
-  (local-set-key [right] 'hungry-forward-char)
+  (local-set-key [left] 'cg-fns-hungry-backward-char)
+  (local-set-key [right] 'cg-fns-hungry-forward-char)
   (local-set-key "\C-c\C-c" 'comment-region)
   (define-key emacs-lisp-mode-map "\C-m" 'newline-and-indent))
 
@@ -476,8 +193,8 @@
 (global-set-key [kp-space] 'goto-line)
 (global-set-key [home] 'beginning-of-line)
 (global-set-key [end] 'end-of-line)
-(global-set-key [prior] 'better-pageup)
-(global-set-key [next] 'better-pagedown)
+(global-set-key [prior] 'cg-fns-better-pageup)
+(global-set-key [next] 'cg-fns-better-pagedown)
 (global-set-key [C-prior] 'beginning-of-buffer)
 (global-set-key [C-next] 'end-of-buffer)
 (global-set-key "\M-[" 'push-position)
@@ -658,10 +375,6 @@ and selects that window."
 
 (global-set-key "\M-c" 'rm-set-mark)
 
-;; *cg* load ediff, emerge, etc.
-(require 'ediff)
-
-
 ;; Don't like the idea of checking out not-found files from RCS
 (remove-hook 'find-file-not-found-hooks 'vc-file-not-found-hook)
 
@@ -736,107 +449,6 @@ and selects that window."
 
 (global-set-key [C-up] 'emx-scroll-line-down)
 (global-set-key [C-down] 'emx-scroll-line-up)
-
-(defun treemacs-custom-filter (file _)
-  (or
-   ;;(s-starts--with? "INSTALL." file)
-   (s-ends-with? ".log" file)
-   (s-ends-with? ".vs" file)
-   (s-ends-with? ".dir" file)
-   (s-ends-with? ".elc" file)
-   (s-ends-with? ".dat" file)
-   (s-ends-with? ".sln" file)
-   (s-ends-with? ".vcxproj" file)
-   (s-ends-with? ".user" file)
-   (s-ends-with? "CMakeCache.txt" file)
-   (s-ends-with? ".json" file)
-   (s-ends-with? "CMakeFiles" file)
-   (s-ends-with? ".cmake" file)
-   (s-ends-with? "Makefile" file)
-   (s-ends-with? ".filters" file)
-   ;;(s-starts--with? "PACKAGE." )
-   ) )
-
-
-(setq treemacs-collapse-dirs                 (if treemacs-python-executable 3 0)
-      treemacs-deferred-git-apply-delay      0.5
-      treemacs-directory-name-transformer    #'identity
-      treemacs-display-in-side-window        t
-      treemacs-eldoc-display                 t
-      treemacs-file-event-delay              5000
-      treemacs-file-extension-regex          treemacs-last-period-regex-value
-      treemacs-file-follow-delay             0.2
-      treemacs-file-name-transformer         #'identity
-      treemacs-follow-after-init             t
-      treemacs-git-command-pipe              ""
-      treemacs-goto-tag-strategy             'refetch-index
-      treemacs-indentation                   2
-      treemacs-indentation-string            " "
-      treemacs-is-never-other-window         nil
-      treemacs-max-git-entries               5000
-      treemacs-missing-project-action        'ask
-      treemacs-move-forward-on-expand        nil
-      treemacs-no-png-images                 nil
-      treemacs-no-delete-other-windows       t
-      treemacs-project-follow-cleanup        nil
-      treemacs-persist-file                  (expand-file-name ".cache/treemacs-persist" user-emacs-directory)
-      treemacs-position                      'left
-      treemacs-recenter-distance             0.1
-      treemacs-recenter-after-file-follow    nil
-      treemacs-recenter-after-tag-follow     nil
-      treemacs-recenter-after-project-jump   'always
-      treemacs-recenter-after-project-expand 'on-distance
-      treemacs-show-cursor                   nil
-      treemacs-show-hidden-files             t
-      treemacs-silent-filewatch              nil
-      treemacs-silent-refresh                nil
-      treemacs-sorting                       'alphabetic-asc
-      treemacs-space-between-root-nodes      t
-      treemacs-tag-follow-cleanup            t
-      treemacs-tag-follow-delay              1.5
-      treemacs-user-mode-line-format         nil
-      treemacs-user-header-line-format       nil
-      treemacs-width                         35
-      treemacs-workspace-switch-cleanup      nil)
-
-;; The default width and height of the icons is 22 pixels. If you are
-;; using a Hi-DPI display, uncomment this to double the icon size.
-;;(treemacs-resize-icons 44)
-
-(push #'treemacs-custom-filter treemacs-ignored-file-predicates)
-(treemacs-follow-mode t)
-(treemacs-filewatch-mode t)
-(treemacs-fringe-indicator-mode t)
-(pcase (cons (not (null (executable-find "git")))
-             (not (null treemacs-python-executable)))
-  (`(t . t)
-   (treemacs-git-mode 'deferred))
-  (`(t . _)
-   (treemacs-git-mode 'simple)))
-
-;; (use-package treemacs-icons-dired
-;;   :after treemacs dired
-;;   :ensure t
-;;   :config (treemacs-icons-dired-mode))
-
-
-(provide 'chris )
-
-;;; Commands added by calc-private-autoloads on Tue Jun 03 08:06:42 2003.
-(autoload 'calc-dispatch	   "calc" "Calculator Options" t)
-(autoload 'full-calc		   "calc" "Full-screen Calculator" t)
-(autoload 'full-calc-keypad	   "calc" "Full-screen X Calculator" t)
-(autoload 'calc-eval		   "calc" "Use Calculator from Lisp")
-(autoload 'defmath		   "calc" nil t t)
-(autoload 'calc			   "calc" "Calculator Mode" t)
-(autoload 'quick-calc		   "calc" "Quick Calculator" t)
-(autoload 'calc-keypad		   "calc" "X windows Calculator" t)
-(autoload 'calc-embedded	   "calc" "Use Calc inside any buffer" t)
-(autoload 'calc-embedded-activate  "calc" "Activate =>'s in buffer" t)
-(autoload 'calc-grab-region	   "calc" "Grab region of Calc data" t)
-(autoload 'calc-grab-rectangle	   "calc" "Grab rectangle of data" t)
-(global-set-key "\e#" 'calc-dispatch)
-;;; End of Calc autoloads.
 
 
 (put 'downcase-region 'disabled nil)
