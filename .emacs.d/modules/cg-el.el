@@ -8,6 +8,7 @@
   (deactivate-mark))
 
 (use-package elisp-mode
+  :straight nil
   :bind (:map emacs-lisp-mode-map
          ("\C-m" . newline-and-indent)
          ("\t" . cg-el-indent-command)

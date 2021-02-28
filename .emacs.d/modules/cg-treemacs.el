@@ -22,7 +22,11 @@
 
 (use-package treemacs
   :defer t
-  :init
+  :config
+  ;; TODO: Scale this depending on `display-monitor-attributes-list'
+  ;; The default width and height of the icons is 22 pixels. If you are
+  ;; using a Hi-DPI display, uncomment this to double the icon size.
+  ;;(treemacs-resize-icons 44)
   (setq treemacs-collapse-dirs                 (if treemacs-python-executable 3 0)
         treemacs-deferred-git-apply-delay      0.5
         treemacs-directory-name-transformer    #'identity
@@ -62,11 +66,6 @@
         treemacs-user-header-line-format       nil
         treemacs-width                         35
         treemacs-workspace-switch-cleanup      nil)
-  :config
-  ;; TODO: Scale this depending on `display-monitor-attributes-list'
-  ;; The default width and height of the icons is 22 pixels. If you are
-  ;; using a Hi-DPI display, uncomment this to double the icon size.
-  ;;(treemacs-resize-icons 44)
   (push #'treemacs-custom-filter treemacs-ignored-file-predicates)
   (treemacs-follow-mode t)
   (treemacs-filewatch-mode t)

@@ -1,10 +1,12 @@
 ;;; cg-layout.el --- Personal window management -*- lexical-binding: t; -*-
 
 ;; Breakpoints in inches/ppi as needed
-(setq cg-layout-phone-breakpoint 7
-      cg-layout-tablet-breakpoint 11
-      cg-layout-laptop-breakpoint 16
-      cg-layout-hidpi-breakpoint 200)
+(defvar cg-layout-breakpoint-alist
+  '((phone . 7)
+    (tablet . 11)
+    (laptop . 16)
+    (hidpi . 200))
+  "Breakpoints in inches/ppi.")
 
 (defun cg-layout-inches (mm)
   (/ mm 25.4))
@@ -19,42 +21,19 @@
        (height (cg-layout-inches (cadr size)))
        (diag (cg-layout-hypotenuse width height))
        (ppi (/ (nth 3 pixels) width)))
-  (setq cg-layout-phone (< diag cg-layout-phone-breakpoint)
-        cg-layout-tablet (< diag cg-layout-tablet-breakpoint)
-        cg-layout-laptop (< diag cg-layout-laptop-breakpoint)
-        cg-layout-desktop (> diag cg-layout-laptop-breakpoint)
-        cg-layout-hidpi (> ppi cg-layout-hidpi-breakpoint)))
+  (defvar cg-layout-hidpi (> ppi (alist-get 'hidpi cg-layout-breakpoint-alist)))
+  (defvar cg-layout (cond ((< diag (alist-get 'phone cg-layout-breakpoint-alist)) 'phone)
+                          ((< diag (alist-get 'tablet cg-layout-breakpoint-alist)) 'tablet)
+                          ((< diag (alist-get 'laptop cg-layout-breakpoint-alist)) 'laptop)
+                          ((> diag (alist-get 'laptop cg-layout-breakpoint-alist)) 'desktop))))
 
-;; *cg* position initial window */
-(defun cg-layout ()
-  "set window pos and splits to default"
-  (interactive)
-  (delete-other-windows)
-  (ignore-errors
-    (cg-layout-frame))
-  ;; Prevent things that aren't user commands from splitting our windows
-  (set-frame-parameter nil 'unsplittable t)
-  ;; `setq' instead of `let'. We'll use them later
-  (setq my-curbuf (current-buffer)
-        my-right-window (split-window-right)
-        my-middle-window (split-window-right)
-        my-big-parrent-window (window-parent my-middle-window))
-  (balance-windows my-big-parrent-window)
-  (setq my-bottom-left-window (condition-case nil
-                                  (split-window-below 66)
-                                ;; Handle excessively small screens like mine.
-                                (error (split-window-below)))
-        my-middle-left-window (split-window-below)
-        my-top-left-window (frame-first-window)
-        my-little-parent-window (window-parent my-top-left-window))
-  (select-window my-middle-window))
-
-(defvar cg-layout-windows
-  '(my-right-window
-    my-middle-window
-    my-bottom-left-window
-    my-middle-left-window
-    my-top-left-window))
+(defvar cg-layout-alist
+  '((desktop (:recipe (split-window-right))
+             (:recipe (progn (split-window-right) (balance-windows)) :focus t)
+             (:recipe (split-window-below) :buffers ("\\*shell\\*" "\\*compilation\\*"))
+             (:recipe (split-window-below) :buffers ("\\*Completions\\*"))
+             (:recipe (frame-first-window) :buffers t)))
+  "Alist of layout names (one of phone/tablet/laptop/desktop).")
 
 (defun cg-layout-visible-buffers (&optional buffer-list)
   "Return a list of visible buffers (i.e. not buried)."
@@ -64,31 +43,44 @@
                       buffers)
       (delete-dups buffers))))
 
-;; Could be a macro but it's likely overkill.
-;; Elisp is a lisp-2 so we can reuse the names
-(dolist (win cg-layout-windows)
-  (fset win (lambda (buffer alist)
-              (when (not (member buffer (cg-layout-visible-buffers)))
-                ;; Only do anything on buffers that are not already visible.
-                ;; Don't focus them either let the default code take it from here.
-                (set-window-buffer (symbol-value win) buffer)))))
-
-;; This is where you define window behaviour It's more complicated than that,
-;; but for your use case, just make each member of the alist of the form
-;; (REGEX/MATCHER-FUNCTION (FUNCTION [. ACTIONS])). The docs go into more detail
-;; but I don't think you'll need it
-(setq display-buffer-overriding-action nil
-      display-buffer-alist
-      '(("\\*shell\\*" (my-bottom-left-window))
-        ("\\*Completions\\*" (my-middle-left-window))
-        ("\\*compilation\\*" (my-bottom-left-window)))
-      display-buffer-base-action '(my-top-left-window))
-
 (defun cg-layout-frame ()
   (interactive)
+  (set-frame-parameter nil 'unsplittable t)
   (set-frame-height nil 105)
   (set-frame-width nil 538)
   (set-frame-position (selected-frame) 5 6))
+
+(defun cg-layout-apply (layout-list)
+  "Take one LAYOUT-LIST from `cg-layout-alist' and apply it."
+  (cg-layout-frame)
+  (let ((focused-window nil))
+    (dolist (window-plist layout-list)
+      (let* ((window (eval (plist-get window-plist :recipe)))
+             (buffer-matchers (plist-get window-plist :buffers))
+             (buffer-catcher (lambda (buffer alist)
+                               ;; don't change focus is buffer is visible
+                               (when (not (member buffer (cg-layout-visible-buffers)))
+                                 (set-window-buffer window buffer))))
+             (focus (plist-get window-plist :focus)))
+        (when focus
+          (setq focused-window window))
+        ;; we have a list of things to catch
+        (if (listp buffer-matchers)
+            (dolist (buffer-matcher buffer-matchers)
+              (add-to-list 'display-buffer-alist `(,buffer-matcher (,buffer-catcher))))
+          ;; if t make it the default window
+          (when buffer-matchers
+            (setq display-buffer-base-action `(,buffer-catcher))))))
+    (when focused-window
+      (select-window focused-window))))
+
+(defun cg-layout-refresh ()
+  "Apply selected layout."
+  (interactive)
+  (cg-layout-apply (or (alist-get cg-layout cg-layout-alist)
+                       (alist-get 'desktop cg-layout-alist))))
+
+(cg-layout-refresh)
 
 (use-package windmove
   :init (windmove-default-keybindings 'meta)
@@ -155,8 +147,6 @@ Set default layout on failure."
     (put-text-property
      (min (point) (mark)) (max (mark) (point))
      'display `( space . ( :align-to 20 )))))
-
-(cg-layout)
 
 (provide 'cg-layout)
 ;;; cg-layout.el ends here

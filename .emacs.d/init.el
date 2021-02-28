@@ -24,7 +24,6 @@
    cg-completion
    cg-scratch
    cg-el
-   cg-perl
    cg-nav ; TODO: Consider separating text and window/buffer nav
    ;;+++
    ))
