@@ -1,5 +1,30 @@
 ;;; cg-layout.el --- Personal window management -*- lexical-binding: t; -*-
 
+;; Breakpoints in inches/ppi as needed
+(setq cg-layout-phone-breakpoint 7
+      cg-layout-tablet-breakpoint 11
+      cg-layout-laptop-breakpoint 16
+      cg-layout-hidpi-breakpoint 200)
+
+(defun cg-layout-inches (mm)
+  (/ mm 25.4))
+
+(defun cg-layout-hypotenuse (opp adj)
+  (sqrt (+ (expt opp 2) (expt adj 2))))
+
+(let* ((attrs (car (display-monitor-attributes-list)))
+       (size (alist-get 'mm-size attrs))
+       (pixels (alist-get 'geometry attrs))
+       (width (cg-layout-inches (car size)))
+       (height (cg-layout-inches (cadr size)))
+       (diag (cg-layout-hypotenuse width height))
+       (ppi (/ (nth 3 pixels) width)))
+  (setq cg-layout-phone (< diag cg-layout-phone-breakpoint)
+        cg-layout-tablet (< diag cg-layout-tablet-breakpoint)
+        cg-layout-laptop (< diag cg-layout-laptop-breakpoint)
+        cg-layout-desktop (> diag cg-layout-laptop-breakpoint)
+        cg-layout-hidpi (> ppi cg-layout-hidpi-breakpoint)))
+
 ;; *cg* position initial window */
 (defun cg-layout ()
   "set window pos and splits to default"
