@@ -8,6 +8,10 @@
     (hidpi . 200))
   "Breakpoints in inches/ppi.")
 
+(defvar cg-layout-default 'desktop
+  "Default layout when no matches are fount in `cg-layout-alist'
+  based on `cg-layout-breakpoint-alist'.")
+
 (defun cg-layout-inches (mm)
   (/ mm 25.4))
 
@@ -33,7 +37,9 @@
              (:recipe (split-window-below) :buffers ("\\*shell\\*" "\\*compilation\\*"))
              (:recipe (split-window-below) :buffers ("\\*Completions\\*"))
              (:recipe (frame-first-window) :buffers t)))
-  "Alist of layout names (one of phone/tablet/laptop/desktop).")
+  "Alist of layout names to list of windows created using :recipe
+  taking :buffers (t means all usorted buffers), and staying
+  focused depending on :focus.")
 
 (defun cg-layout-visible-buffers (&optional buffer-list)
   "Return a list of visible buffers (i.e. not buried)."
@@ -53,6 +59,7 @@
 (defun cg-layout-apply (layout-list)
   "Take one LAYOUT-LIST from `cg-layout-alist' and apply it."
   (cg-layout-frame)
+  (delete-other-windows)
   (let ((focused-window nil))
     (dolist (window-plist layout-list)
       (let* ((window (eval (plist-get window-plist :recipe)))
@@ -78,7 +85,7 @@
   "Apply selected layout."
   (interactive)
   (cg-layout-apply (or (alist-get cg-layout cg-layout-alist)
-                       (alist-get 'desktop cg-layout-alist))))
+                       (alist-get cg-layout-default cg-layout-alist))))
 
 (cg-layout-refresh)
 
