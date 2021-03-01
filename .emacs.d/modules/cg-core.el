@@ -7,8 +7,6 @@
 (electric-indent-mode +1)
 (transient-mark-mode +1)
 (column-number-mode +1)
-(save-place-mode +1)
-(savehist-mode +1)
 
 (put 'eval-expression 'disabled nil)
 (put 'upcase-region 'disabled nil)
@@ -19,7 +17,6 @@
       tab-width 4
       visible-bell t
       mouse-scroll-delay 0
-      auto-save-default t
       search-highlight t
       query-replace-highlight t
       hscroll-step 8

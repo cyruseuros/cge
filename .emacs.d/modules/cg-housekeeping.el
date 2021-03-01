@@ -6,8 +6,11 @@
   (require 'recentf)
   (add-to-list 'recentf-exclude no-littering-var-directory)
   (add-to-list 'recentf-exclude no-littering-etc-directory)
+  (save-place-mode +1)
+  (savehist-mode +1)
   ;; keep auto-save files out of sight
-  (setq auto-save-file-name-transforms
+  (setq auto-save-default t
+        auto-save-file-name-transforms
         `((".*" ,(no-littering-expand-var-file-name "auto-save/") t)))
   ;; keep gui configuration in the etc/ directory
   (setq custom-file (no-littering-expand-etc-file-name "custom.el")))
