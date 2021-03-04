@@ -33,13 +33,14 @@
 
 (defvar cg-layout-alist
   '((desktop (:recipe (split-window-right))
-             (:recipe (progn (split-window-right) (balance-windows)) :focus t)
+             (:recipe (split-window-right) :after (balance-windows) :focus t)
              (:recipe (split-window-below) :buffers ("\\*shell\\*" "\\*compilation\\*"))
              (:recipe (split-window-below) :buffers ("\\*Completions\\*"))
-             (:recipe (frame-first-window) :buffers t)))
-  "Alist of layout names to list of windows created using :recipe
-  taking :buffers (t means all usorted buffers), and staying
-  focused depending on :focus.")
+             (:recipe (frame-first-window) :buffers t)) :focus t)
+  "Alist of layout names to list of windows.
+created using :recipe taking :buffers (t means all usorted
+buffers), and staying focused depending on :focus. You can use
+the keyword :after to perofrm cleanup and adjustment")
 
 (defun cg-layout-visible-buffers (&optional buffer-list)
   "Return a list of visible buffers (i.e. not buried)."
@@ -68,9 +69,15 @@
                                ;; don't change focus is buffer is visible
                                (when (not (member buffer (cg-layout-visible-buffers)))
                                  (set-window-buffer window buffer))))
+             (after (plist-get window-plist :after))
              (focus (plist-get window-plist :focus)))
+
+        (when after
+          (eval after))
+
         (when focus
           (setq focused-window window))
+
         ;; we have a list of things to catch
         (if (listp buffer-matchers)
             (dolist (buffer-matcher buffer-matchers)
@@ -78,6 +85,7 @@
           ;; if t make it the default window
           (when buffer-matchers
             (setq display-buffer-base-action `(,buffer-catcher))))))
+
     (when focused-window
       (select-window focused-window))))
 
