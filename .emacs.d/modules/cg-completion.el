@@ -39,6 +39,9 @@
   (setq dabbrev-case-fold-search nil)
   (setq dabbrev-case-replace nil))
 
+(use-package lsp-mode
+  :hook ((c-mode-common . lsp-deferred)))
+
 (icomplete-mode +1)
 
 (provide 'cg-completion)

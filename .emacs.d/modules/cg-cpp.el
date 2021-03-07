@@ -1,5 +1,9 @@
 ;;; cg-cpp.el --- C/C++ configuration -*- lexical-binding: t; -*-
 
+(defvar cg-cpp-windows-server
+  (expand-file-name "opt/ms-vscode.cpptools-1.2.2/bin/cpptools.exe" user-emacs-directory)
+  "The prefered c/cpp lsp server to use on windows.")
+
 (defun cg-cpp-clang-format-command ()
   "clang format buffer or region"
   (interactive)
@@ -50,6 +54,13 @@
    ([right] . cg-fns-hungry-forward-char)
    ([M-mouse-2] . imenu)
    ("\C-m" . cg-fns-newline-and-indent)))
+
+(with-eval-after-load 'lsp-mode
+  (when (eq system-type 'windows-nt)
+    (lsp-register-client
+     (make-lsp-client :new-connection (lsp-stdio-connection cg-cpp-windows-server)
+                      :major-modes '(c-mode c++-mode)
+                      :server-id 'cpptools))))
 
 (use-package ggtags
   :defer t)
