@@ -16,6 +16,7 @@
    cg-housekeeping
    cg-calc
    cg-app
+   cg-cpp
    cg-treemacs
    cg-vc
    cg-theme

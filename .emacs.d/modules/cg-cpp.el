@@ -59,8 +59,7 @@
   (when (eq system-type 'windows-nt)
     (lsp-register-client
      (make-lsp-client :new-connection (lsp-stdio-connection cg-cpp-windows-server)
-                      :major-modes '(c-mode c++-mode)
-                      :priority 999
+                      :major-modes '(c-mode c++-mode objc-mode)
                       :server-id 'cpptools))))
 
 (use-package ggtags
