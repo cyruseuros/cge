@@ -60,6 +60,7 @@
     (lsp-register-client
      (make-lsp-client :new-connection (lsp-stdio-connection cg-cpp-windows-server)
                       :major-modes '(c-mode c++-mode)
+                      :priority 999
                       :server-id 'cpptools))))
 
 (use-package ggtags
