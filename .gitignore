@@ -12,3 +12,6 @@ tmp/
 # Emacs Directories
 straight/
 var/
+
+# output
+cge.zip
