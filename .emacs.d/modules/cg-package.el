@@ -7,6 +7,7 @@
 ;; reproduce them down to their git hash.
 (defvar bootstrap-version)
 (setq straight-use-package-by-default t
+      straight-vc-git-default-clone-depth 1
       ;; Where package repositories and build directories will be stored.
       ;; We can redirect this elsewhere in the future.
       straight-base-dir user-emacs-directory)
