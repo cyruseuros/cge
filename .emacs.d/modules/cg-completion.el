@@ -40,6 +40,8 @@
   (setq dabbrev-case-replace nil))
 
 (use-package lsp-mode
+  ;; NOTE: If you want to set this to t install yasnippet
+  :init (setq lsp-enable-snippet nil)
   :hook ((c-mode-common . lsp-deferred)))
 
 (icomplete-mode +1)
