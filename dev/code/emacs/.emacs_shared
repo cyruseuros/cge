@@ -80,11 +80,6 @@
   (comint-send-input nil t)
   )
 
-(defun line_up ()
-  (interactive)
-  (if mark-active (put-text-property (min (point) (mark)) (max (mark) (point)) 'display `( space . ( :align-to 20 ) ) ) )
-  )
-
 ;; add CALC!!!
 (autoload 'calc-dispatch	   "calc" "Calculator Options" t)
 (autoload 'full-calc		   "calc" "Full-screen Calculator" t)
@@ -868,3 +863,7 @@ and selects that window."
 
 
 (put 'downcase-region 'disabled nil)
+
+;; Local Variables:
+;; mode: emacs-lisp
+;; End:

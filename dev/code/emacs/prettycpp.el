@@ -1,5 +1,5 @@
 
-(defvar font-lock-level5-comment-face		
+(defvar font-lock-level5-comment-face
   'font-lock-level5-comment-face
   "Face name to use for triple slash comments at indent level 0"
   )
@@ -9,7 +9,7 @@
   "Face to use for triple slash comments at indent level 0"
   :group 'font-lock-faces)
 
-(defvar font-lock-level4-comment-face		
+(defvar font-lock-level4-comment-face
   'font-lock-level4-comment-face
   "Face name to use for triple slash comments at indent level 0"
   )
@@ -19,7 +19,7 @@
   "Face to use for triple slash comments at indent level 0"
   :group 'font-lock-faces)
 
-(defvar font-lock-level3-comment-face		
+(defvar font-lock-level3-comment-face
   'font-lock-level3-comment-face
   "Face name to use for double slash comments at indent level 0"
   )
@@ -29,7 +29,7 @@
   "Face to use for double slash comments at indent level 0"
   :group 'font-lock-faces)
 
-(defvar font-lock-level2-comment-face		
+(defvar font-lock-level2-comment-face
   'font-lock-level2-comment-face
   "Face name to use for triple slash full line comments at indent level >0"
   )
@@ -39,7 +39,7 @@
   "Face to use for triple slash full line comments at indent level >00"
   :group 'font-lock-faces)
 
-(defvar font-lock-post-declaration-doc-face		
+(defvar font-lock-post-declaration-doc-face
   'font-lock-post-declaration-doc-face
   "Face name to use for //< full line comments at indent level >0"
   )
@@ -49,7 +49,7 @@
   "Face to use for //< full line comments at indent level >00"
   :group 'font-lock-faces)
 
-(defvar font-lock-level0-comment-face		
+(defvar font-lock-level0-comment-face
   'font-lock-level0-comment-face
   "Face name to use for double slash non full-line comments"
   )
@@ -59,7 +59,7 @@
   "Face  to use for double slash non full-line comments"
   :group 'font-lock-faces)
 
-(defvar font-lock-bs-keywords-face		
+(defvar font-lock-bs-keywords-face
   'font-lock-bs-keywords-face
   "Face name to use for de-emphasized keywords"
   )
@@ -69,7 +69,7 @@
   "Face name to use for de-emphasized keywords"
   :group 'font-lock-faces)
 
-(defvar font-lock-commented-out-code-face		
+(defvar font-lock-commented-out-code-face
   'font-lock-commented-out-code-face
   "Face name to use for commented out code"
   )
@@ -102,77 +102,101 @@
 
   ;; add comment marker detection
   (font-lock-add-keywords nil
-						  '(
-							;;( "[;0-9a-zA-Z:]\\(\\s-+!!\\)" 1 `(face font-lock-level5-comment-face (display :align-to 60 ) ) t )
-							("^\\(///\\S-.*\\)" 1 font-lock-level5-comment-face t )
-							("^\\(///\\s-.*\\)" 1 font-lock-level4-comment-face t )
-							("^\\(///$\\)" 1 font-lock-level4-comment-face t )
-							("^\\(//\\s-.*\\)" 1 font-lock-level3-comment-face t )
-							("^\\s-+\\(//<.*\\)" 1 font-lock-post-declaration-doc-face t )
-							("^\\s-+\\(///<.*\\)" 1 font-lock-post-declaration-doc-face t )
-							("^\\s-+\\(///.*\\)" 1 font-lock-level2-comment-face t )
-							("^\\s-+\\(//\\s-.*\\)" 1 font-lock-level0-comment-face t )
-							("^\\s-+\\(//;.*\\)" 1 font-lock-commented-out-code-face t )
-							("^\\s-*\\([{}]\\);*\\s-*$" 1 font-lock-commented-out-code-face t )
-							)
-						  1
-						  )
+			  '(
+			    ;;( "[;0-9a-zA-Z:]\\(\\s-+!!\\)" 1 `(face font-lock-level5-comment-face (display :align-to 60 ) ) t )
+			    ("^\\(///\\S-.*\\)" 1 font-lock-level5-comment-face t )
+			    ("^\\(///\\s-.*\\)" 1 font-lock-level4-comment-face t )
+			    ("^\\(///$\\)" 1 font-lock-level4-comment-face t )
+			    ("^\\(//\\s-.*\\)" 1 font-lock-level3-comment-face t )
+			    ("^\\s-+\\(//<.*\\)" 1 font-lock-post-declaration-doc-face t )
+			    ("^\\s-+\\(///<.*\\)" 1 font-lock-post-declaration-doc-face t )
+			    ("^\\s-+\\(///.*\\)" 1 font-lock-level2-comment-face t )
+			    ("^\\s-+\\(//\\s-.*\\)" 1 font-lock-level0-comment-face t )
+			    ("^\\s-+\\(//;.*\\)" 1 font-lock-commented-out-code-face t )
+			    ("^\\s-*\\([{}]\\);*\\s-*$" 1 font-lock-commented-out-code-face t )
+			    )
+			  1
+			  )
 
   (font-lock-add-keywords nil
                           '(
-							("\\(\\.inverse()\\)" 1 '(face nil display "⁻¹" ) )
-;;							(" \\(=\\) " 1 '(face nil display "←" ) )
-;;							("^\\s-*\\S-.*\\(\\s-\\)//" 1 '(face nil display `(space :align-to 80 ) ) )
-							)
-						  1
-						  )
+			    ("\\(\\.inverse()\\)" 1 '(face nil display "⁻¹" ) )
+                            ;;							(" \\(=\\) " 1 '(face nil display "←" ) )
+                            ;;							("^\\s-*\\S-.*\\(\\s-\\)//" 1 '(face nil display `(space :align-to 80 ) ) )
+			    )
+			  1
+			  )
 
   (font-lock-add-keywords nil
                           '(
-							("\\(delta_\\)" 1 '(face nil display "Δ" ) )
-							(" \\(ST\\)\\s-*(" 1 '(face nil display "∋" ) )
-							)
-						  1
-						  )
+			    ("\\(delta_\\)" 1 '(face nil display "Δ" ) )
+			    (" \\(ST\\)\\s-*(" 1 '(face nil display "∋" ) )
+			    )
+			  1
+			  )
 
   (font-lock-add-keywords nil
-						  '(
-							("\\<\\(const\\)\\>" 1 font-lock-bs-keywords-face t )
-							("\\<\\(inline\\)\\>" 1 font-lock-bs-keywords-face t )
-							("\\<\\(INLINE\\)\\>" 1 font-lock-bs-keywords-face t )
-							("\\<\\(void\\)\\>" 1 font-lock-bs-keywords-face t )
-							("\\<\\(template\\)\\>" 1 font-lock-bs-keywords-face t )
-							("\\<\\(virtual\\)\\>" 1 font-lock-bs-keywords-face t )
-							("\\<\\(override\\)\\>" 1 font-lock-bs-keywords-face t )
-							)
-						  1
-						  )
+			  '(
+			    ("\\<\\(const\\)\\>" 1 font-lock-bs-keywords-face t )
+			    ("\\<\\(inline\\)\\>" 1 font-lock-bs-keywords-face t )
+			    ("\\<\\(INLINE\\)\\>" 1 font-lock-bs-keywords-face t )
+			    ("\\<\\(void\\)\\>" 1 font-lock-bs-keywords-face t )
+			    ("\\<\\(template\\)\\>" 1 font-lock-bs-keywords-face t )
+			    ("\\<\\(virtual\\)\\>" 1 font-lock-bs-keywords-face t )
+			    ("\\<\\(override\\)\\>" 1 font-lock-bs-keywords-face t )
+			    )
+			  1
+			  )
   (setq prettify-symbols-alist
-		'(
-		  ("->" 8594) 
-		  ("==" 8801) 
-		  ("//<" 9615) 
-		  ("///+" 8239) 
-		  ("/// " 8239) 
-		  ("///" 8239) 
-		  (">=" . 8805) 
-		  ("<=" . 8804) 
-		  ("||" . 8214) 
-		  ("LAMBDA" . 955 ) 
-		  ("!=" . 8800) 
-		  ("flAlpha" . 120514 ) 
-		  ("flTheta" . 952 ) 
-		  ("flBeta" . 120515)
-		  ( "FLT_MAX" . 8734 )
-		  ) )
-  
+	'(
+	  ("->" 8594)
+	  ("==" 8801)
+	  ("//<" 9615)
+	  ("///+" 8239)
+	  ("/// " 8239)
+	  ("///" 8239)
+	  (">=" . 8805)
+	  ("<=" . 8804)
+	  ("||" . 8214)
+	  ("LAMBDA" . 955 )
+	  ("!=" . 8800)
+	  ("flAlpha" . 120514 )
+	  ("flTheta" . 952 )
+	  ("flBeta" . 120515)
+	  ( "FLT_MAX" . 8734 )
+	  ) )
+
   (prettify-symbols-mode 1 )
   ;; we want graphics in our comments
   (turn-on-iimage-mode)
-  (iimage-mode-buffer t )
-  )
+  (iimage-mode-buffer t ))
 
-  
+(setq my-trailing-comment-regex "[[:word:]]\\([[:space:]]+\\)// "
+      my-trailing-comment-pixel-multiple 20
+      my-trailing-comment-pixel-constant 20)
+;; fooo    // bar
+
+(defun my-line-up-comments-region (&optional beg end)
+  "Align trailing comments between BEG and END."
+  (let ((beg (or beg (point-min)))
+        (end (or end (point-max))))
+    (when (and (display-graphic-p)
+               (window-live-p (get-buffer-window nil (selected-frame))))
+      (save-excursion
+        (goto-char beg)
+        (while (and (< (point) end)
+                    (re-search-forward my-trailing-comment-regex end t))
+          (ignore-errors
+            (let ((match-beg (match-beginning 1))
+                  (match-end (match-end 1)))
+              (put-text-property match-beg match-end 'display
+                                 `(space :align-to
+                                         (,(+ my-trailing-comment-pixel-constant
+                                              (* my-trailing-comment-pixel-multiple
+                                                 (- match-end match-beg)))))))))))))
+
+(add-hook 'jit-lock-functions #'my-line-up-comments-region)
+
 (provide 'prettycpp)
 
 
