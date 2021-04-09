@@ -116,9 +116,9 @@
 			    ("^\\s-*\\([{}]\\);*\\s-*$" 1 font-lock-commented-out-code-face t )
 
                             ;; trailing comments
-                            ("^ \\{0\\}[^ ].*[^ ]\\( +\\)//" 1 '(face nil display (space :align-to 120)))
-                            ("^ \\{4\\}[^ ].*[^ ]\\( +\\)//" 1 '(face nil display (space :align-to 140)))
-                            ("^ \\{8\\}[^ ].*[^ ]\\( +\\)//" 1 '(face nil display (space :align-to 160)))
+                            ("^ \\{0\\}[^ ].*[^ ]\\( +\\)//" 1 '(face nil display (space :align-to (250))))
+                            ("^ \\{4\\}[^ ].*[^ ]\\( +\\)//" 1 '(face nil display (space :align-to (300))))
+                            ("^ \\{8\\}[^ ].*[^ ]\\( +\\)//" 1 '(face nil display (space :align-to (350))))
 
                             ;; std::abs(x) == |x|
 			    ("std::abs(" (0 '(face nil display "|" ))
