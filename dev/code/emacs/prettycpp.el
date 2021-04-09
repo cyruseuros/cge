@@ -114,10 +114,15 @@
 			    ("^\\s-+\\(//\\s-.*\\)" 1 font-lock-level0-comment-face t )
 			    ("^\\s-+\\(//;.*\\)" 1 font-lock-commented-out-code-face t )
 			    ("^\\s-*\\([{}]\\);*\\s-*$" 1 font-lock-commented-out-code-face t )
+
                             ;; trailing comments
                             ("^ \\{0\\}[^ ].*[^ ]\\( +\\)//" 1 '(face nil display (space :align-to 120)))
                             ("^ \\{4\\}[^ ].*[^ ]\\( +\\)//" 1 '(face nil display (space :align-to 140)))
                             ("^ \\{8\\}[^ ].*[^ ]\\( +\\)//" 1 '(face nil display (space :align-to 160)))
+
+                            ;; std::abs(x) == |x|
+			    ("std::abs(" (0 '(face nil display "|" ))
+                             (")" nil nil (0 '(face nil display "|" ))))
 			    )
 			  1
 			  )
