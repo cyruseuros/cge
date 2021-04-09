@@ -114,6 +114,10 @@
 			    ("^\\s-+\\(//\\s-.*\\)" 1 font-lock-level0-comment-face t )
 			    ("^\\s-+\\(//;.*\\)" 1 font-lock-commented-out-code-face t )
 			    ("^\\s-*\\([{}]\\);*\\s-*$" 1 font-lock-commented-out-code-face t )
+                            ;; trailing comments
+                            ("^ \\{0\\}[^ ].*[^ ]\\( +\\)//" 1 '(face nil display (space :align-to 120)))
+                            ("^ \\{4\\}[^ ].*[^ ]\\( +\\)//" 1 '(face nil display (space :align-to 140)))
+                            ("^ \\{8\\}[^ ].*[^ ]\\( +\\)//" 1 '(face nil display (space :align-to 160)))
 			    )
 			  1
 			  )
@@ -171,32 +175,6 @@
   (turn-on-iimage-mode)
   (iimage-mode-buffer t ))
 
-(setq my-trailing-comment-regex "[[:word:]]\\([[:space:]]+\\)// "
-      my-trailing-comment-pixel-multiple 20
-      my-trailing-comment-pixel-constant 20)
-;; fooo    // bar
-
-(defun my-line-up-comments-region (&optional beg end)
-  "Align trailing comments between BEG and END."
-  (let ((beg (or beg (point-min)))
-        (end (or end (point-max))))
-    (when (and (display-graphic-p)
-               (window-live-p (get-buffer-window nil (selected-frame))))
-      (save-excursion
-        (goto-char beg)
-        (while (and (< (point) end)
-                    (re-search-forward my-trailing-comment-regex end t))
-          (ignore-errors
-            (let ((match-beg (match-beginning 1))
-                  (match-end (match-end 1)))
-              (put-text-property match-beg match-end 'display
-                                 `(space :align-to
-                                         (,(+ my-trailing-comment-pixel-constant
-                                              (* my-trailing-comment-pixel-multiple
-                                                 (- match-end match-beg)))))))))))))
-
-(add-hook 'jit-lock-functions #'my-line-up-comments-region)
-
 (provide 'prettycpp)
 
 
@@ -211,3 +189,8 @@
 
 
 ;; implement doxy style comment mathings. Like ///< for an indented trailing block comment after a decl
+(with-temp-buffer
+  (insert "x1")
+  (put-text-property 2 3 'display '(raise 0.5))
+  (message "%s" (buffer-string))
+  (sit-for 3))
