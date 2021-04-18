@@ -85,6 +85,29 @@
 
 (add-to-list 'font-lock-extra-managed-props 'display)
 
+(defun my-font-lock-add-trailing-comments
+    (trailing-comment levels start-pixels increment-pixels &optional mode)
+  "Align trailing commnet denoted by TRAILING-COMMENT at exact pixel.
+Do so up to LEVELS level of indentation. Align un-indented lines
+at START-PIXEL, and add INCREMENT-PIXEL to every level after
+that. Apply these setting globally if MODE is omitted and to MODE
+if MODE is specified. LEVELS corresponds to tabs or `tab-width' *
+LEVELS spaces. Indentation level detection only works if you do not mix
+leading tabs and spaces on the same line"
+  (let ((inner-pattern (format "[^\t ].*\\(.[\t ]*\\)%s" trailing-comment)))
+    (dotimes (n-tabs levels)
+      (let* ((n-spaces (* n-tabs tab-width))
+             (n-spaces-prev (max 0 (+ 1 (- n-spaces tab-width))))
+             (pixels (+ start-pixels (* increment-pixels n-tabs))))
+        (font-lock-add-keywords
+         mode `(
+                ;; space-indented regex
+                (,(format "^ \\{%s,%s\\}%s" n-spaces-prev n-spaces inner-pattern)
+                 1 '(face nil display (space :align-to (,pixels))))
+                ;; tab-indented regex
+                (,(format "^\t\\{%s\\}%s" n-tabs inner-pattern)
+                 1 '(face nil display (space :align-to (,pixels))))))))))
+
 (defun cpp-prettify()
   "make code look pretty"
 
@@ -99,6 +122,8 @@
             (not (or (memq (char-syntax (or (char-before start) ?\s)) syntaxes-beg)
                      (memq (char-syntax (or (char-after end) ?\s)) syntaxes-end)
                      (nth 3 (syntax-ppss)))))))
+
+  (my-font-lock-add-trailing-comments "//" 40 500 50)
 
   ;; add comment marker detection
   (font-lock-add-keywords nil
@@ -115,14 +140,9 @@
 			    ("^\\s-+\\(//;.*\\)" 1 font-lock-commented-out-code-face t )
 			    ("^\\s-*\\([{}]\\);*\\s-*$" 1 font-lock-commented-out-code-face t )
 
-                            ;; trailing comments
-                            ("^ \\{0\\}[^ ].*[^ ]\\( +\\)//" 1 '(face nil display (space :align-to (250))))
-                            ("^ \\{4\\}[^ ].*[^ ]\\( +\\)//" 1 '(face nil display (space :align-to (300))))
-                            ("^ \\{8\\}[^ ].*[^ ]\\( +\\)//" 1 '(face nil display (space :align-to (350))))
-
                             ;; std::abs(x) == |x|
-			    ("std::abs(" (0 '(face nil display "|" ))
-                             (")" nil nil (0 '(face nil display "|" ))))
+			    ;; ("std::abs(" (0 '(face nil display "|" ))
+                            ;;  (")" nil nil (0 '(face nil display "|" ))))
 			    )
 			  1
 			  )
@@ -181,7 +201,6 @@
   (iimage-mode-buffer t ))
 
 (provide 'prettycpp)
-
 
 ;; todo:
 ;;   Highlight "operatorx" decls like function names
