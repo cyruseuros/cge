@@ -94,7 +94,7 @@ that. Apply these setting globally if MODE is omitted and to MODE
 if MODE is specified. LEVELS corresponds to tabs or `tab-width' *
 LEVELS spaces. Indentation level detection only works if you do not mix
 leading tabs and spaces on the same line"
-  (let ((inner-pattern (format "[^\t ].*\\(.[\t ]*\\)%s" trailing-comment)))
+  (let ((inner-pattern (format "[^\t ].*\\([\t ]*\\)%s" trailing-comment)))
     (dotimes (n-tabs levels)
       (let* ((n-spaces (* n-tabs tab-width))
              (n-spaces-prev (max 0 (+ 1 (- n-spaces tab-width))))
